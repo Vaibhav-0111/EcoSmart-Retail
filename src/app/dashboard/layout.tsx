@@ -14,12 +14,10 @@ import {
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Bell, Cog, User, Sparkles, Sprout, Palette, Sun, Moon } from "lucide-react";
+import { Bell, Cog, User, Sparkles } from "lucide-react";
 import { ReturnsProvider } from "@/context/ReturnsContext";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 import { useReturns } from "@/hooks/use-returns";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 
 function HeaderStats() {
     const { items } = useReturns();
@@ -84,59 +82,6 @@ function EcoImpactCard() {
     );
 }
 
-const themes = [
-  { name: 'forest', color: 'bg-green-500' },
-  { name: 'ocean', color: 'bg-blue-500' },
-  { name: 'sunset', color: 'bg-orange-500' },
-];
-
-function ThemeSwitcher() {
-  const [activeTheme, setActiveTheme] = useState('forest');
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    document.body.classList.remove('theme-forest', 'theme-ocean', 'theme-sunset');
-    document.body.classList.add(`theme-${activeTheme}`);
-  }, [activeTheme]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-  }, [isDarkMode]);
-
-  return (
-    <div className="flex items-center gap-2">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Palette className="size-5" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-2">
-          <div className="flex gap-2">
-            {themes.map((theme) => (
-              <button
-                key={theme.name}
-                onClick={() => setActiveTheme(theme.name)}
-                className={cn(
-                  'h-8 w-8 rounded-full',
-                  theme.color,
-                  'border-2',
-                  activeTheme === theme.name ? 'border-primary' : 'border-transparent'
-                )}
-                aria-label={`Switch to ${theme.name} theme`}
-              />
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
-      <Button variant="ghost" size="icon" onClick={() => setIsDarkMode(!isDarkMode)}>
-        {isDarkMode ? <Sun className="size-5" /> : <Moon className="size-5" />}
-      </Button>
-    </div>
-  );
-}
-
-
 function DashboardContent({ children }: { children: React.ReactNode }) {
     return (
          <SidebarProvider>
@@ -171,7 +116,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 </div>
                 <div className="flex-1" />
                 <div className="flex items-center gap-4">
-                    <ThemeSwitcher />
+                    <Button variant="ghost" size="icon">
+                        <Cog className="size-5" />
+                        <span className="sr-only">Settings</span>
+                    </Button>
                     <Button variant="ghost" size="icon">
                         <Bell className="size-5" />
                         <span className="sr-only">Notifications</span>
