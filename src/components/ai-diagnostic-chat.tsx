@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { diagnoseItemAction } from "@/app/actions";
-import { Loader2, Send, Bot, User, CheckCircle } from "lucide-react";
+import { Loader2, Send, Bot, User, CheckCircle, Wrench } from "lucide-react";
 import type { ReturnedItem } from "@/lib/types";
 
 interface ChatMessage {
-    role: "user" | "model";
+    role: "user" | "model" | "tool";
     content: string;
 }
 
@@ -61,13 +61,19 @@ export function AiDiagnosticChat({ onComplete }: AiDiagnosticChatProps) {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
 
-        const newMessages: ChatMessage[] = [...messages, { role: "user", content: input }];
+        const userMessage: ChatMessage = { role: "user", content: input };
+        const newMessages: ChatMessage[] = [...messages, userMessage];
         setMessages(newMessages);
         setInput("");
         setIsLoading(true);
 
         try {
             const result = await diagnoseItemAction({ chatHistory: newMessages });
+
+            // The Genkit `prompt` helper automatically handles tool calls,
+            // so we don't need to add tool request/response messages to the history manually.
+            // The flow will re-prompt with the tool output included.
+
             setMessages(prev => [...prev, { role: "model", content: result.response }]);
             
             if (result.isFinal && result.itemDetails) {
@@ -97,15 +103,25 @@ export function AiDiagnosticChat({ onComplete }: AiDiagnosticChatProps) {
         <div className="flex flex-col h-[60vh]">
             <ScrollArea className="flex-1 p-4" ref={scrollAreaRef as any}>
                 <div className="space-y-4">
-                    {messages.map((message, index) => (
-                        <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
-                            {message.role === 'model' && <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot className="size-5" /></div>}
-                            <div className={`rounded-lg px-4 py-2 max-w-[80%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                                <p className="text-sm">{message.content}</p>
+                    {messages.map((message, index) => {
+                        if (message.role === 'tool') {
+                            return (
+                                <div key={index} className="flex items-center justify-center gap-2 my-4">
+                                    <Wrench className="size-4 text-muted-foreground" />
+                                    <p className="text-xs text-muted-foreground italic">{message.content}</p>
+                                </div>
+                            )
+                        }
+                        return (
+                            <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
+                                {message.role === 'model' && <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot className="size-5" /></div>}
+                                <div className={`rounded-lg px-4 py-2 max-w-[80%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                                    <p className="text-sm">{message.content}</p>
+                                </div>
+                                {message.role === 'user' && <div className="p-2 rounded-full bg-muted"><User className="size-5" /></div>}
                             </div>
-                            {message.role === 'user' && <div className="p-2 rounded-full bg-muted"><User className="size-5" /></div>}
-                        </div>
-                    ))}
+                        )
+                    })}
                     {isLoading && messages.length > 0 && (
                          <div className="flex items-start gap-3">
                             <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot className="size-5" /></div>

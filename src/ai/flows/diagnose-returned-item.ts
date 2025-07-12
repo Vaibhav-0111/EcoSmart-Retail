@@ -11,8 +11,44 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+// Mock product database lookup
+const mockProductDatabase: Record<string, { category: 'electronics' | 'clothing' | 'home goods' | 'toys' | 'other'; value: number }> = {
+    "smart led tv 55-inch": { category: "electronics", value: 450 },
+    "winter jacket": { category: "clothing", value: 85 },
+    "non-stick frying pan": { category: "home goods", value: 30 },
+    "remote control car": { category: "toys", value: 45 },
+    "wireless headphones": { category: "electronics", value: 199 },
+    "summer dress": { category: "clothing", value: 60 },
+};
+
+const lookupProductInfo = ai.defineTool(
+    {
+        name: 'lookupProductInfo',
+        description: 'Looks up product information from the internal company database.',
+        inputSchema: z.object({
+            productName: z.string().describe('The name of the product to look up. Should be a generic name.'),
+        }),
+        outputSchema: z.object({
+            found: z.boolean(),
+            category: z.enum(['electronics', 'clothing', 'home goods', 'toys', 'other']).optional(),
+            value: z.number().optional(),
+        }),
+    },
+    async (input) => {
+        const key = input.productName.toLowerCase().trim();
+        // A real implementation would query a database
+        for (const dbKey in mockProductDatabase) {
+            if (key.includes(dbKey)) {
+                const product = mockProductDatabase[dbKey];
+                return { found: true, category: product.category, value: product.value };
+            }
+        }
+        return { found: false };
+    }
+);
+
 const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'model']),
+  role: z.enum(['user', 'model', 'tool']),
   content: z.string(),
 });
 
@@ -46,24 +82,31 @@ const prompt = ai.definePrompt({
   name: 'diagnoseReturnedItemPrompt',
   input: {schema: DiagnoseReturnedItemInputSchema},
   output: {schema: DiagnoseReturnedItemOutputSchema},
+  tools: [lookupProductInfo],
   prompt: `You are an AI assistant helping a retail employee diagnose a returned item.
-  Your goal is to ask questions one by one to gather the following information:
+  Your goal is to gather the following information by asking questions:
   1. Product Name
-  2. Category (must be one of: electronics, clothing, home goods, toys, other)
-  3. Condition (must be one of: new, used, damaged)
-  4. Return Reason
-  5. Estimated Value (in USD)
+  2. Condition (must be one of: new, used, damaged)
+  3. Return Reason
+
+  When the user provides the product name, you MUST use the 'lookupProductInfo' tool to find its category and value.
+  If the tool finds the product, confirm the category and value with the user and then ask for the remaining information (condition, reason).
+  If the tool does not find the product, you must then ask the user for the Category and the Estimated Value.
 
   Keep your questions friendly, concise, and focused on gathering one piece of information at a time.
   Start the conversation by asking for the product name if the history is empty.
 
-  Once you have all 5 pieces of information, set "isFinal" to true.
+  Once you have all 5 pieces of information (Name, Category, Value, Condition, Reason), set "isFinal" to true.
   Then, provide a final "recommendedAction" (reuse, repair, recycle, resell, or landfill) and a "reasoning" for your choice.
   Your final response message should be a summary of the item and your recommendation.
 
   Here is the conversation history:
   {{#each chatHistory}}
+  {{#if (eq role 'tool')}}
+  Tool: {{content}}
+  {{else}}
   {{role}}: {{content}}
+  {{/if}}
   {{/each}}
   `,
 });
