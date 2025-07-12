@@ -7,6 +7,8 @@ import { getInventoryRecommendations, type GetInventoryRecommendationsInput, typ
 import { diagnoseReturnedItem, type DiagnoseReturnedItemInput, type DiagnoseReturnedItemOutput } from '@/ai/flows/diagnose-returned-item';
 import { forecastReturns, type ForecastReturnsInput, type ForecastReturnsOutput } from '@/ai/flows/forecast-returns';
 import { generateProductImage, type GenerateProductImageInput, type GenerateProductImageOutput } from '@/ai/flows/generate-product-image';
+import { describeImage, type DescribeImageInput, type DescribeImageOutput } from '@/ai/flows/describe-image';
+import { textToSpeech, type TextToSpeechInput, type TextToSpeechOutput } from '@/ai/flows/text-to-speech';
 
 
 export async function getRecommendationAction(input: RecommendReturnedItemActionInput): Promise<RecommendReturnedItemActionOutput> {
@@ -35,4 +37,12 @@ export async function forecastReturnsAction(input: ForecastReturnsInput): Promis
 
 export async function generateProductImageAction(input: GenerateProductImageInput): Promise<GenerateProductImageOutput> {
     return await generateProductImage(input);
+}
+
+export async function describeImageAction(input: DescribeImageInput): Promise<DescribeImageOutput> {
+    return await describeImage(input);
+}
+
+export async function textToSpeechAction(input: TextToSpeechInput): Promise<TextToSpeechOutput> {
+    return await textToSpeech(input);
 }

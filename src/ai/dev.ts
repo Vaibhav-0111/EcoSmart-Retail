@@ -8,3 +8,5 @@ import '@/ai/flows/get-inventory-recommendations.ts';
 import '@/ai/flows/diagnose-returned-item.ts';
 import '@/ai/flows/forecast-returns.ts';
 import '@/ai/flows/generate-product-image.ts';
+import '@/ai/flows/describe-image.ts';
+import '@/ai/flows/text-to-speech.ts';
