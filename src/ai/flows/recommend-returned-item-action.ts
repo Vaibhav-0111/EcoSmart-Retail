@@ -21,7 +21,7 @@ const RecommendReturnedItemActionInputSchema = z.object({
 export type RecommendReturnedItemActionInput = z.infer<typeof RecommendReturnedItemActionInputSchema>;
 
 const RecommendReturnedItemActionOutputSchema = z.object({
-  recommendedAction: z.enum(['reuse', 'repair', 'recycle', 'resell']).describe('The recommended action for the returned item.'),
+  recommendedAction: z.enum(['reuse', 'repair', 'recycle', 'resell', 'landfill']).describe('The recommended action for the returned item.'),
   reasoning: z.string().describe('The reasoning behind the recommended action.'),
 });
 
@@ -37,7 +37,7 @@ const prompt = ai.definePrompt({
   output: {schema: RecommendReturnedItemActionOutputSchema},
   prompt: `You are an expert in reverse logistics and sustainability.
 
-  Based on the following information about a returned item, recommend the most appropriate action to minimize waste and maximize sustainability. You must pick one of the following actions: reuse, repair, recycle, resell.
+  Based on the following information about a returned item, recommend the most appropriate action to minimize waste and maximize sustainability. You must pick one of the following actions: reuse, repair, recycle, resell, landfill.
 
   Item Description: {{{itemDescription}}}
   Item Condition: {{{itemCondition}}}

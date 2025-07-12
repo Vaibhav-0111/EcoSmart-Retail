@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useReturns } from "@/hooks/use-returns";
 import {
   Card,
   CardContent,
@@ -40,7 +41,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,29 +48,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { mockReturnedItems, sustainabilityMetrics, sustainabilityChartConfig } from "@/lib/mock-data";
+import { sustainabilityChartConfig } from "@/lib/mock-data";
 import { getRecommendationAction, identifyProductAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import type { ReturnedItem } from "@/lib/types";
-import type { RecommendReturnedItemActionOutput } from "@/ai/flows/recommend-returned-item-action";
 import { Loader2, Package, Recycle, Wrench, Repeat, DollarSign, Wand2, PlusCircle, Camera, SparklesIcon } from "lucide-react";
+import { useMemo } from "react";
 
 const recommendationIcons = {
   reuse: <Repeat className="h-8 w-8 text-blue-500" />,
   repair: <Wrench className="h-8 w-8 text-orange-500" />,
   recycle: <Recycle className="h-8 w-8 text-green-500" />,
   resell: <DollarSign className="h-8 w-8 text-yellow-500" />,
+  landfill: <Package className="h-8 w-8 text-gray-500" />,
 };
 
+const defaultNewItemState: Omit<ReturnedItem, 'id'> = { name: '', category: 'electronics', condition: 'new', returnReason: '', value: 0 };
+
+
 export default function LogisticsPage() {
-  const [returnedItems, setReturnedItems] = useState<ReturnedItem[]>(mockReturnedItems);
+  const { items, addItem, updateItem } = useReturns();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [recommendation, setRecommendation] = useState<RecommendReturnedItemActionOutput | null>(null);
   const { toast } = useToast();
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newItem, setNewItem] = useState<Omit<ReturnedItem, 'id'>>({ name: '', category: 'electronics', condition: 'new', returnReason: '', value: 0 });
+  const [newItem, setNewItem] = useState<Omit<ReturnedItem, 'id'>>(defaultNewItemState);
   const [isScanning, setIsScanning] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -137,19 +140,17 @@ export default function LogisticsPage() {
   }
 
   const handleAddItem = () => {
-      const newId = `R-${Math.floor(Math.random() * 10000)}`;
-      const itemToAdd: ReturnedItem = { ...newItem, id: newId };
-      setReturnedItems(prev => [itemToAdd, ...prev]);
+      addItem(newItem);
       setIsAddDialogOpen(false);
-      setNewItem({ name: '', category: 'electronics', condition: 'new', returnReason: '', value: 0 });
+      setNewItem(defaultNewItemState);
       toast({
           title: "Item Added",
-          description: `${itemToAdd.name} has been added to the returns list.`,
+          description: `${newItem.name} has been added to the returns list.`,
       });
   }
 
 
-  const selectedItem = returnedItems.find((item) => item.id === selectedItemId);
+  const selectedItem = items.find((item) => item.id === selectedItemId);
 
   const handleGetRecommendation = async () => {
     if (!selectedItem) {
@@ -162,7 +163,6 @@ export default function LogisticsPage() {
     }
 
     setIsLoading(true);
-    setRecommendation(null);
 
     try {
       const result = await getRecommendationAction({
@@ -171,7 +171,7 @@ export default function LogisticsPage() {
         itemCategory: selectedItem.category,
         returnReason: selectedItem.returnReason,
       });
-      setRecommendation(result);
+      updateItem(selectedItem.id, { recommendation: result.recommendedAction, reasoning: result.reasoning });
     } catch (error) {
       console.error(error);
       toast({
@@ -183,6 +183,22 @@ export default function LogisticsPage() {
       setIsLoading(false);
     }
   };
+
+  const sustainabilityMetrics = useMemo(() => {
+     const counts = items.reduce((acc, item) => {
+         if(item.recommendation) {
+             acc[item.recommendation] = (acc[item.recommendation] || 0) + 1;
+         }
+         return acc;
+     }, {} as Record<string, number>);
+
+     return [
+        { action: "Resell", value: counts.resell || 0, fill: "var(--color-resell)" },
+        { action: "Repair", value: counts.repair || 0, fill: "var(--color-repair)" },
+        { action: "Reuse", value: counts.reuse || 0, fill: "var(--color-reuse)" },
+        { action: "Recycle", value: counts.recycle || 0, fill: "var(--color-recycle)" },
+     ]
+  }, [items]);
   
   return (
     <div className="grid gap-6 lg:grid-cols-5">
@@ -203,7 +219,7 @@ export default function LogisticsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <RadioGroup value={selectedItemId || ""} onValueChange={setSelectedItemId}>
+            <RadioGroup value={selectedItemId || ""} onValueChange={(id) => {setSelectedItemId(id)}}>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -215,7 +231,7 @@ export default function LogisticsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {returnedItems.map((item) => (
+                  {items.map((item) => (
                     <TableRow key={item.id} className="cursor-pointer" onClick={() => setSelectedItemId(item.id)}>
                       <TableCell>
                         <RadioGroupItem value={item.id} id={item.id} />
@@ -267,13 +283,13 @@ export default function LogisticsPage() {
                   <h3 className="font-semibold">{selectedItem.name}</h3>
                   <p className="text-sm text-muted-foreground">{selectedItem.returnReason}</p>
                 </div>
-                <Button onClick={handleGetRecommendation} disabled={isLoading} className="w-full">
+                <Button onClick={handleGetRecommendation} disabled={isLoading || !!selectedItem.recommendation} className="w-full">
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <Wand2 className="mr-2 h-4 w-4" />
                   )}
-                  Get Recommendation
+                  {selectedItem.recommendation ? 'Recommendation Received' : 'Get Recommendation'}
                 </Button>
               </div>
             ) : (
@@ -290,17 +306,17 @@ export default function LogisticsPage() {
                </div>
             )}
 
-            {recommendation && (
+            {selectedItem?.recommendation && (
               <div className="pt-4 border-t">
                 <Card className="bg-accent/20">
                   <CardHeader className="items-center text-center">
                     <div className="p-3 bg-background rounded-full">
-                        {recommendationIcons[recommendation.recommendedAction]}
+                        {recommendationIcons[selectedItem.recommendation]}
                     </div>
-                    <CardTitle className="capitalize text-2xl text-primary">{recommendation.recommendedAction}</CardTitle>
+                    <CardTitle className="capitalize text-2xl text-primary">{selectedItem.recommendation}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-center text-muted-foreground">{recommendation.reasoning}</p>
+                    <p className="text-center text-muted-foreground">{selectedItem.reasoning}</p>
                   </CardContent>
                 </Card>
               </div>

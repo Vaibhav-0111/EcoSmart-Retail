@@ -10,6 +10,8 @@ export const mockReturnedItems: ReturnedItem[] = [
     condition: "used",
     returnReason: "Customer changed their mind.",
     value: 450,
+    recommendation: "resell",
+    reasoning: "The item is in good condition and can be resold to recover its value."
   },
   {
     id: "R-1002",
@@ -18,6 +20,8 @@ export const mockReturnedItems: ReturnedItem[] = [
     condition: "new",
     returnReason: "Incorrect size ordered.",
     value: 85,
+    recommendation: "resell",
+    reasoning: "New items can be immediately restocked and sold."
   },
   {
     id: "R-1003",
@@ -26,6 +30,8 @@ export const mockReturnedItems: ReturnedItem[] = [
     condition: "damaged",
     returnReason: "Item arrived with a dent.",
     value: 30,
+    recommendation: "recycle",
+    reasoning: "The item is damaged and made of materials that can be recycled."
   },
   {
     id: "R-1004",
@@ -34,6 +40,8 @@ export const mockReturnedItems: ReturnedItem[] = [
     condition: "used",
     returnReason: "Faulty remote control.",
     value: 45,
+    recommendation: "repair",
+    reasoning: "A faulty remote can often be repaired, allowing the item to be resold."
   },
     {
     id: "R-1005",

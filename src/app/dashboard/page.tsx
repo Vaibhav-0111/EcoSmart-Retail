@@ -1,4 +1,9 @@
+// src/app/dashboard/page.tsx
+"use client";
+
 import Link from "next/link";
+import { useMemo } from "react";
+import { useReturns } from "@/hooks/use-returns";
 import {
   Card,
   CardContent,
@@ -16,9 +21,55 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, Bot, Box, DollarSign, Leaf, Package, Recycle, Sparkles, BarChart, Sprout } from "lucide-react";
+import { ArrowUpRight, Bot, Box, DollarSign, Leaf, Package, Recycle, Sparkles, BarChart, Sprout, Wrench, Repeat } from "lucide-react";
+import type { ReturnedItem } from "@/lib/types";
+
+const recommendationIcons: { [key: string]: React.ReactNode } = {
+  reuse: <Repeat className="size-3 mr-1" />,
+  repair: <Wrench className="size-3 mr-1" />,
+  recycle: <Recycle className="size-3 mr-1" />,
+  resell: <DollarSign className="size-3 mr-1" />,
+};
+
+const recommendationBadges: { [key: string]: string } = {
+    resell: "text-amber-600 border-amber-200 bg-amber-50",
+    recycle: "text-blue-600 border-blue-200 bg-blue-50",
+    repair: "text-orange-600 border-orange-200 bg-orange-50",
+    reuse: "text-indigo-600 border-indigo-200 bg-indigo-50",
+};
+
 
 export default function DashboardOverview() {
+  const { items } = useReturns();
+
+  const { totalReturns, itemsRedirected, costSavings, wasteReduction, recentReturns } = useMemo(() => {
+    const totalReturns = items.length;
+    
+    const itemsRedirected = items.filter(item => item.recommendation && item.recommendation !== 'landfill').length;
+
+    const costSavings = items.reduce((acc, item) => {
+        if (item.recommendation && ['resell', 'repair', 'reuse'].includes(item.recommendation)) {
+            return acc + item.value;
+        }
+        return acc;
+    }, 0);
+
+    const wasteReduction = totalReturns > 0 ? (itemsRedirected / totalReturns) * 100 : 0;
+    
+    const recentReturns = [...items].sort((a, b) => (b.id > a.id ? 1 : -1)).slice(0, 5);
+    
+    return { totalReturns, itemsRedirected, costSavings, wasteReduction, recentReturns };
+  }, [items]);
+  
+  const actionBreakdown = useMemo(() => {
+    return items.reduce((acc, item) => {
+      if(item.recommendation) {
+        acc[item.recommendation] = (acc[item.recommendation] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+  }, [items])
+
   return (
     <div className="space-y-6">
       <Card className="bg-primary text-primary-foreground">
@@ -29,13 +80,13 @@ export default function DashboardOverview() {
                 AI-powered sustainable retail operations for Walmart
                 </p>
                 <div className="flex items-center gap-2 pt-2">
-                    <Badge variant="secondary" className="gap-2 bg-white/20 border-0 text-white"><Leaf className="size-3"/> 89% Waste Reduction</Badge>
+                    <Badge variant="secondary" className="gap-2 bg-white/20 border-0 text-white"><Leaf className="size-3"/> {wasteReduction.toFixed(0)}% Waste Reduction</Badge>
                     <Badge variant="secondary" className="gap-2 bg-white/20 border-0 text-white"><Bot className="size-3"/> AI-Powered Insights</Badge>
                     <Badge variant="secondary" className="gap-2 bg-white/20 border-0 text-white"><Sprout className="size-3"/> Hackathon 2025</Badge>
                 </div>
             </div>
             <div className="text-right">
-                <p className="text-5xl font-bold">$47.2K</p>
+                <p className="text-5xl font-bold">${(costSavings / 1000).toFixed(1)}K</p>
                 <p className="text-primary-foreground/80">Cost Savings This Month</p>
             </div>
         </div>
@@ -50,12 +101,8 @@ export default function DashboardOverview() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">2,847</div>
+            <div className="text-3xl font-bold">{totalReturns}</div>
             <p className="text-xs text-muted-foreground">Last 30 days</p>
-            <div className="flex items-center gap-1 text-xs text-green-600 font-semibold pt-2">
-                <ArrowUpRight className="size-4" />
-                <span>+12.5%</span>
-            </div>
           </CardContent>
         </Card>
         <Card>
@@ -66,12 +113,8 @@ export default function DashboardOverview() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">2,534</div>
+            <div className="text-3xl font-bold">{itemsRedirected}</div>
             <p className="text-xs text-muted-foreground">Saved from landfill</p>
-            <div className="flex items-center gap-1 text-xs text-green-600 font-semibold pt-2">
-                <ArrowUpRight className="size-4" />
-                <span>+18.2%</span>
-            </div>
           </CardContent>
         </Card>
         <Card>
@@ -82,12 +125,8 @@ export default function DashboardOverview() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">$47,230</div>
+            <div className="text-3xl font-bold">${costSavings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             <p className="text-xs text-muted-foreground">Revenue recovered</p>
-            <div className="flex items-center gap-1 text-xs text-green-600 font-semibold pt-2">
-                <ArrowUpRight className="size-4" />
-                <span>+23.1%</span>
-            </div>
           </CardContent>
         </Card>
          <Card>
@@ -98,12 +137,8 @@ export default function DashboardOverview() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">89.2%</div>
+            <div className="text-3xl font-bold">{wasteReduction.toFixed(1)}%</div>
             <p className="text-xs text-muted-foreground">Environmental impact</p>
-            <div className="flex items-center gap-1 text-xs text-green-600 font-semibold pt-2">
-                <ArrowUpRight className="size-4" />
-                <span>+5.4%</span>
-            </div>
           </CardContent>
         </Card>
       </div>
@@ -129,24 +164,30 @@ export default function DashboardOverview() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    <TableRow>
-                        <TableCell>
-                            <p className="font-medium">iPhone 14 Pro</p>
-                            <p className="text-xs text-muted-foreground">RTN-001 • Electronics</p>
-                        </TableCell>
-                        <TableCell><Badge variant="secondary">Like New</Badge></TableCell>
-                        <TableCell><Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50"><DollarSign className="size-3 mr-1" /> Resell</Badge></TableCell>
-                        <TableCell className="text-right font-medium">$899.00</TableCell>
-                    </TableRow>
-                     <TableRow>
-                        <TableCell>
-                            <p className="font-medium">Nike Air Max</p>
-                            <p className="text-xs text-muted-foreground">RTN-002 • Footwear</p>
-                        </TableCell>
-                        <TableCell><Badge variant="secondary">Used</Badge></TableCell>
-                        <TableCell><Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50"><Recycle className="size-3 mr-1" /> Recycle</Badge></TableCell>
-                        <TableCell className="text-right font-medium">$120.00</TableCell>
-                    </TableRow>
+                    {recentReturns.length > 0 ? recentReturns.map((item: ReturnedItem) => (
+                        <TableRow key={item.id}>
+                            <TableCell>
+                                <p className="font-medium">{item.name}</p>
+                                <p className="text-xs text-muted-foreground">{item.id} • <span className="capitalize">{item.category}</span></p>
+                            </TableCell>
+                            <TableCell><Badge variant={item.condition === 'damaged' ? 'destructive' : 'secondary'} className="capitalize">{item.condition}</Badge></TableCell>
+                            <TableCell>
+                                {item.recommendation ? (
+                                    <Badge variant="outline" className={`capitalize ${recommendationBadges[item.recommendation]}`}>
+                                        {recommendationIcons[item.recommendation]}
+                                        {item.recommendation}
+                                    </Badge>
+                                ) : <span className="text-muted-foreground text-xs">Awaiting AI</span>}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">${item.value.toFixed(2)}</TableCell>
+                        </TableRow>
+                    )) : (
+                        <TableRow>
+                            <TableCell colSpan={4} className="h-24 text-center">
+                                No recent returns. Add one from the Returns Management page.
+                            </TableCell>
+                        </TableRow>
+                    )}
                 </TableBody>
             </Table>
           </CardContent>
@@ -155,22 +196,23 @@ export default function DashboardOverview() {
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle>Sustainability Impact</CardTitle>
-                    <Badge variant="outline">+18% this month</Badge>
                 </div>
             </CardHeader>
             <CardContent className="text-center">
-                <p className="text-4xl font-bold text-primary">2,847</p>
+                <p className="text-4xl font-bold text-primary">{totalReturns}</p>
                 <p className="text-sm text-muted-foreground">Total Items Processed</p>
-                <p className="text-4xl font-bold text-primary mt-4">89.2%</p>
+                <p className="text-4xl font-bold text-primary mt-4">{wasteReduction.toFixed(1)}%</p>
                 <p className="text-sm text-muted-foreground">Waste Reduction</p>
 
                 <div className="mt-6">
                     <p className="font-semibold mb-2">Action Breakdown</p>
                     <div className="flex justify-center gap-4 text-xs">
-                        <div className="flex items-center gap-1"><div className="size-2 rounded-full bg-blue-500"/>Resell</div>
-                        <div className="flex items-center gap-1"><div className="size-2 rounded-full bg-orange-500"/>Repair</div>
-                        <div className="flex items-center gap-1"><div className="size-2 rounded-full bg-green-500"/>Recycle</div>
-                        <div className="flex items-center gap-1"><div className="size-2 rounded-full bg-yellow-500"/>Reuse</div>
+                        {Object.entries(actionBreakdown).map(([action, count]) => (
+                             <div key={action} className="flex items-center gap-1 capitalize">
+                                <div className={`size-2 rounded-full ${action === 'resell' ? 'bg-amber-500' : action === 'repair' ? 'bg-orange-500' : action === 'recycle' ? 'bg-blue-500' : 'bg-indigo-500'}`}/>
+                                {action} ({count})
+                            </div>
+                        ))}
                     </div>
                 </div>
             </CardContent>

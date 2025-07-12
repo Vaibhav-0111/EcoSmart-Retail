@@ -5,4 +5,6 @@ export type ReturnedItem = {
   condition: "new" | "used" | "damaged";
   returnReason: string;
   value: number;
+  recommendation?: "reuse" | "repair" | "recycle" | "resell" | "landfill";
+  reasoning?: string;
 };
