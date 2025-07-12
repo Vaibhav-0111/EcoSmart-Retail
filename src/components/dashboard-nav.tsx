@@ -30,14 +30,14 @@ const links = [
   },
   {
     href: "/dashboard/analytics",
-    label: "Analytics",
-    description: "Performance Insights",
+    label: "Performance",
+    description: "Financial & Ops Insights",
     icon: <BarChart />,
   },
   {
     href: "/dashboard/recommendations",
-    label: "Recommendations",
-    description: "AI-Powered Suggestions",
+    label: "AI Analytics",
+    description: "Recommendations & Forecasts",
     icon: <Sparkles />,
   },
 ];
