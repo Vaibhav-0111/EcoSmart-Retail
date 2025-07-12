@@ -40,7 +40,6 @@ export default function ProductStudioPage() {
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setPrompt(transcript);
-        setIsListening(false);
         toast({ title: "Prompt captured!", description: "Voice prompt has been filled." });
       };
 
@@ -49,7 +48,6 @@ export default function ProductStudioPage() {
         if (event.error !== 'no-speech') {
           toast({ title: "Voice Error", description: "Could not recognize speech.", variant: "destructive" });
         }
-        setIsListening(false);
       };
       
       recognitionRef.current.onend = () => {
@@ -67,13 +65,13 @@ export default function ProductStudioPage() {
         toast({ title: "Unsupported", description: "Voice recognition is not supported in your browser.", variant: "destructive" });
         return;
       }
-      // Prevent starting if already active
       try {
         recognitionRef.current?.start();
         setIsListening(true);
       } catch (error) {
+        // This catch block handles cases where recognition might already be starting, preventing a crash.
         console.error("Could not start recognition:", error)
-        // This might happen if it's already started, so we'll just ensure state is correct
+        toast({ title: "Voice Error", description: "Could not start voice recognition. Please try again.", variant: "destructive" });
         setIsListening(false);
       }
     }
