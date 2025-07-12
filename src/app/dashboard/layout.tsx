@@ -1,7 +1,7 @@
 // src/app/dashboard/layout.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,9 +15,8 @@ import {
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Bell, Cog, User, Sparkles, Sun, Moon, Droplets, Palette } from "lucide-react";
+import { User, Sparkles, Sun, Moon, Droplets, Palette, Leaf } from "lucide-react";
 import { ReturnsProvider } from "@/context/ReturnsContext";
-import { useMemo } from "react";
 import { useReturns } from "@/hooks/use-returns";
 import {
   DropdownMenu,
@@ -72,7 +71,11 @@ function ThemeSwitcher() {
   const [theme, setTheme] = useState("theme-forest");
 
   useEffect(() => {
-    document.body.className = theme;
+    // Remove any existing theme classes
+    const themeClasses = ["theme-forest", "theme-ocean", "theme-sunset"];
+    document.body.classList.remove(...themeClasses);
+    // Add the new theme class
+    document.body.classList.add(theme);
   }, [theme]);
 
   return (
@@ -85,7 +88,7 @@ function ThemeSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("theme-forest")}>
-          <Sun className="mr-2 h-4 w-4" />
+          <Leaf className="mr-2 h-4 w-4" />
           <span>Forest</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("theme-ocean")}>
@@ -158,14 +161,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <div className="flex-1" />
                 <div className="flex items-center gap-4">
                     <ThemeSwitcher />
-                    <Button variant="ghost" size="icon">
-                        <Cog className="size-5" />
-                        <span className="sr-only">Settings</span>
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                        <Bell className="size-5" />
-                        <span className="sr-only">Notifications</span>
-                    </Button>
                     <UserNav />
                 </div>
                 </header>
