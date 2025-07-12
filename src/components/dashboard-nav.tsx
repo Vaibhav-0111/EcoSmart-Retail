@@ -74,10 +74,10 @@ export function DashboardNav() {
         </SidebarMenuItem>
       
       {links.slice(1).map((link) => (
-        <SidebarMenuItem key={link.href}>
+        <SidebarMenuItem key={`${link.href}-${link.label}`}>
           <SidebarMenuButton
             asChild
-            isActive={pathname.startsWith(link.href) && link.href !== "/"}
+            isActive={pathname.startsWith(link.href) && link.href !== "#"}
             className="h-auto flex-col items-start p-3 data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
           >
             <Link href={link.href}>
