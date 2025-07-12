@@ -9,7 +9,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { personalShopperAction } from "@/app/actions";
-import { Loader2, Send, Bot, User, Sparkles } from "lucide-react";
+import { Loader2, Send, Bot, User, Sparkles, Mic, MicOff } from "lucide-react";
+
+// SpeechRecognition type might not be available on the window object, so we declare it.
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 interface Product {
     id: string;
@@ -29,8 +37,59 @@ export function PersonalShopperChat() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(true);
+    const [isListening, setIsListening] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const recognitionRef = useRef<any>(null);
     const { toast } = useToast();
+    
+    useEffect(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+          recognitionRef.current = new SpeechRecognition();
+          recognitionRef.current.continuous = false;
+          recognitionRef.current.lang = 'en-US';
+          recognitionRef.current.interimResults = false;
+    
+          recognitionRef.current.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript;
+            setInput(transcript);
+            toast({ title: "Message captured!", description: "Your voice message is ready to send." });
+          };
+    
+          recognitionRef.current.onerror = (event: any) => {
+            console.error("Speech recognition error", event.error);
+             if (event.error !== 'no-speech') {
+                toast({ title: "Voice Error", description: "Could not recognize speech.", variant: "destructive" });
+             }
+          };
+          
+          recognitionRef.current.onend = () => {
+             setIsListening(false);
+          }
+        }
+    }, [toast]);
+
+
+    const handleToggleListening = () => {
+        if (isListening) {
+          recognitionRef.current?.stop();
+          setIsListening(false);
+        } else {
+          if (!recognitionRef.current) {
+            toast({ title: "Unsupported", description: "Voice recognition is not supported in your browser.", variant: "destructive" });
+            return;
+          }
+          try {
+            recognitionRef.current?.start();
+            setIsListening(true);
+          } catch (error) {
+            console.error("Could not start recognition:", error)
+            toast({ title: "Voice Error", description: "Could not start voice recognition. Please try again.", variant: "destructive" });
+            setIsListening(false);
+          }
+        }
+    };
+
 
     useEffect(() => {
         // Initial message from AI
@@ -145,6 +204,16 @@ export function PersonalShopperChat() {
                         placeholder="Describe what you're looking for..."
                         disabled={isLoading}
                     />
+                     <Button
+                        type="button"
+                        variant={isListening ? "destructive" : "outline"}
+                        size="icon"
+                        onClick={handleToggleListening}
+                        disabled={isLoading}
+                        title={isListening ? "Stop listening" : "Use voice"}
+                    >
+                       {isListening ? <MicOff /> : <Mic />}
+                    </Button>
                     <Button type="submit" disabled={isLoading || !input.trim()}>
                         <Send className="size-4" />
                         <span className="sr-only">Send</span>
