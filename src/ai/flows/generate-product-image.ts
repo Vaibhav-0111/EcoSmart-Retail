@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
 const GenerateProductImageInputSchema = z.object({
@@ -35,7 +36,7 @@ const generateProductImageFlow = ai.defineFlow(
   async (input) => {
     const { media } = await ai.generate({
       // IMPORTANT: This specific model is for image generation.
-      model: 'googleai/gemini-2.0-flash-preview-image-generation',
+      model: googleAI.model('gemini-2.0-flash-preview-image-generation'),
       prompt: `A professional, high-resolution product photograph of the following item, on a clean, white studio background: ${input.prompt}`,
       config: {
         // You must request both modalities.
