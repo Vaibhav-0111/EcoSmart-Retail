@@ -140,7 +140,7 @@ export default function ForecastingPage() {
                                             borderRadius: "var(--radius)"
                                         }}
                                     />
-                                    <Bar dataKey="returns" fill="fill" />
+                                    <Bar dataKey="returns" fill="var(--color-primary)" />
                                 </RechartsBarChart>
                             </ResponsiveContainer>
                         </div>

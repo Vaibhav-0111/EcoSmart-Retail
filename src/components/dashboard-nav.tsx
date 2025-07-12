@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Recycle, Sparkles, BarChart, Sprout, Image, Store } from "lucide-react";
+import { LayoutDashboard, Recycle, Sparkles, BarChart, Sprout, Image, Store, LineChart } from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -27,6 +27,12 @@ const links = [
     label: "Marketplace",
     description: "Manage Resale Listings",
     icon: <Store />,
+  },
+   {
+    href: "/dashboard/forecasting",
+    label: "Forecasting",
+    description: "Predict Return Volumes",
+    icon: <LineChart />,
   },
   {
     href: "/dashboard/sustainability",
