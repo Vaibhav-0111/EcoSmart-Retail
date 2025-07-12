@@ -7,12 +7,13 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, AlertTriangle, CheckCircle } from "lucide-react";
+import { useReturns } from "@/hooks/use-returns";
+import { getRecommendationsAction } from "@/app/actions";
+import { Loader2, Sparkles, AlertTriangle, CheckCircle, FileText } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -22,24 +23,42 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { inventoryRecommendations } from "@/lib/mock-data";
+
+interface Recommendation {
+    id: string;
+    type: "inventory" | "supply chain";
+    title: string;
+    description: string;
+    impact: "High" | "Medium" | "Low";
+    confidence: number;
+}
 
 export default function RecommendationsPage() {
   const { toast } = useToast();
+  const { items } = useReturns();
   const [isLoading, setIsLoading] = useState(false);
-  const [recommendations, setRecommendations] = useState(inventoryRecommendations);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
   const handleGetRecommendations = async () => {
     setIsLoading(true);
-    // In a real app, you would call an AI action here.
-    // We'll just simulate a delay.
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setRecommendations(inventoryRecommendations); // Resetting to mock data
-    toast({
-        title: "Recommendations Refreshed",
-        description: "New inventory and supply chain recommendations are available.",
-    });
-    setIsLoading(false);
+    setRecommendations([]);
+    try {
+        const result = await getRecommendationsAction({ returnedItems: JSON.stringify(items) });
+        setRecommendations(result.recommendations);
+        toast({
+            title: "Recommendations Refreshed",
+            description: "New inventory and supply chain recommendations are available.",
+        });
+    } catch (error) {
+        console.error(error);
+        toast({
+            title: "Error",
+            description: "Failed to get recommendations from the AI.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -56,7 +75,7 @@ export default function RecommendationsPage() {
                     <div>
                         <CardTitle>Inventory & Supply Chain</CardTitle>
                         <CardDescription>
-                        Proactive suggestions to improve efficiency and reduce costs.
+                        Proactive suggestions to improve efficiency and reduce costs based on returns data.
                         </CardDescription>
                     </div>
                      <Button onClick={handleGetRecommendations} disabled={isLoading}>
@@ -80,6 +99,17 @@ export default function RecommendationsPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
+                        {!isLoading && recommendations.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={4} className="h-48 text-center">
+                                    <div className="flex flex-col items-center gap-4">
+                                        <FileText className="size-12 text-muted-foreground"/>
+                                        <p className="text-muted-foreground">No recommendations yet.</p>
+                                        <p className="text-sm text-muted-foreground">Click "Get Fresh Recommendations" to have the AI analyze your data.</p>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
                         {recommendations.map((rec) => (
                             <TableRow key={rec.id}>
                                 <TableCell>
