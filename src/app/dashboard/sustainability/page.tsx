@@ -21,7 +21,7 @@ export default function SustainabilityPage() {
   const [report, setReport] = useState("");
   const { toast } = useToast();
 
-  const { sustainabilityImpactMetrics, actionBreakdown, wasteDiverted } = useMemo(() => {
+  const { sustainabilityImpactMetrics, actionBreakdown } = useMemo(() => {
     const co2Saved = items.length * 1.25; // Dummy calculation
     const wasteDiverted = items.filter(item => item.recommendation !== 'landfill').length * 2.5; // Dummy calculation
     const waterSaved = items.length * 45; // Dummy calculation
@@ -42,7 +42,6 @@ export default function SustainabilityPage() {
         { ...mockMetrics[3], value: `${treesSaved.toFixed(0)}` },
       ],
       actionBreakdown,
-      wasteDiverted: wasteDiverted.toFixed(0)
     };
   }, [items]);
 
@@ -154,12 +153,12 @@ export default function SustainabilityPage() {
             </Card>
         </div>
         <div className="lg:col-span-2">
-            <Card>
+            <Card className="flex flex-col">
                 <CardHeader>
                     <CardTitle>AI-Generated Report</CardTitle>
                     <CardDescription>Generate a narrative report of your sustainability achievements.</CardDescription>
                 </CardHeader>
-                <CardContent className="prose prose-sm dark:prose-invert bg-muted/50 p-4 rounded-lg min-h-[300px]">
+                <CardContent className="prose prose-sm dark:prose-invert bg-muted/50 p-4 rounded-lg min-h-[300px] flex-grow">
                   {isGenerating ? (
                     <div className="flex flex-col items-center justify-center h-full">
                       <Loader2 className="size-8 animate-spin text-primary" />
