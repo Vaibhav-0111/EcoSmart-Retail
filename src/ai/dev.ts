@@ -11,3 +11,4 @@ import '@/ai/flows/generate-product-image.ts';
 import '@/ai/flows/describe-image.ts';
 import '@/ai/flows/text-to-speech.ts';
 import '@/ai/flows/generate-resale-listing.ts';
+import '@/ai/flows/personal-shopper.ts';

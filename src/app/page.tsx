@@ -13,9 +13,12 @@ export default function Home() {
             <Icons.logo className="h-8 w-8 text-primary" />
             <span className="font-bold text-lg">EcoSmart Retail</span>
           </Link>
-          <nav>
+          <nav className="flex items-center gap-2">
+            <Button asChild variant="ghost">
+              <Link href="/shop">AI Shopper</Link>
+            </Button>
             <Button asChild>
-              <Link href="/dashboard">Get Started</Link>
+              <Link href="/dashboard">Employee Dashboard</Link>
             </Button>
           </nav>
         </div>
@@ -30,8 +33,11 @@ export default function Home() {
               An AI-powered platform for sustainable reverse logistics and personalized shopping.
             </p>
             <div className="space-x-4">
-              <Button asChild size="lg">
+              <Button asChild size="lg" variant="outline">
                 <Link href="/dashboard">Explore Dashboard</Link>
+              </Button>
+               <Button asChild size="lg">
+                <Link href="/shop">Try AI Shopper</Link>
               </Button>
             </div>
           </div>
