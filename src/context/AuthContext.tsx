@@ -1,3 +1,4 @@
+
 // src/context/AuthContext.tsx
 "use client";
 
@@ -49,8 +50,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await signInWithPopup(auth, provider);
     } catch (error: any) {
-      console.error("Authentication error:", error);
-       if (error.code === 'auth/api-key-not-valid' || error.code === 'auth/invalid-api-key') {
+      if (error.code === 'auth/popup-closed-by-user') {
+        // This is a common case where the user simply closes the login popup.
+        // We can ignore this error and not show a toast.
+        console.log("Login popup closed by user.");
+      } else if (error.code === 'auth/api-key-not-valid' || error.code === 'auth/invalid-api-key') {
          toast({
             title: "Invalid Firebase API Key",
             description: "The provided Firebase API key is not valid. Please check your .env file.",
@@ -71,6 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
            duration: 10000,
        });
       } else {
+        console.error("Authentication error:", error);
         toast({
             title: "Login Failed",
             description: "Could not sign in with Google. Please try again.",
