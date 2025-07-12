@@ -52,8 +52,9 @@ import { sustainabilityChartConfig } from "@/lib/mock-data";
 import { getRecommendationAction, identifyProductAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import type { ReturnedItem } from "@/lib/types";
-import { Loader2, Package, Recycle, Wrench, Repeat, DollarSign, Wand2, PlusCircle, Camera, SparklesIcon } from "lucide-react";
+import { Loader2, Package, Recycle, Wrench, Repeat, DollarSign, Wand2, PlusCircle, Camera, SparklesIcon, Bot } from "lucide-react";
 import { useMemo } from "react";
+import { AiDiagnosticChat } from "@/components/ai-diagnostic-chat";
 
 const recommendationIcons = {
   reuse: <Repeat className="h-8 w-8 text-blue-500" />,
@@ -73,6 +74,7 @@ export default function LogisticsPage() {
   const { toast } = useToast();
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [newItem, setNewItem] = useState<Omit<ReturnedItem, 'id'>>(defaultNewItemState);
   const [isScanning, setIsScanning] = useState(false);
   
@@ -149,6 +151,15 @@ export default function LogisticsPage() {
       });
   }
 
+  const handleAiDiagnoseComplete = (item: Omit<ReturnedItem, 'id'>) => {
+    addItem(item);
+    setIsAiChatOpen(false);
+    toast({
+      title: "Item Added by AI",
+      description: `${item.name} has been diagnosed and added to the list.`
+    });
+  }
+
 
   const selectedItem = items.find((item) => item.id === selectedItemId);
 
@@ -212,10 +223,16 @@ export default function LogisticsPage() {
                     Select an item to view details and get an AI-powered action recommendation.
                     </CardDescription>
                 </div>
-                <Button onClick={() => setIsAddDialogOpen(true)}>
-                    <PlusCircle className="mr-2" />
-                    Add Item
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button onClick={() => setIsAddDialogOpen(true)} variant="outline">
+                        <PlusCircle className="mr-2" />
+                        Add Manually
+                    </Button>
+                    <Button onClick={() => setIsAiChatOpen(true)}>
+                        <Bot className="mr-2" />
+                        Diagnose with AI
+                    </Button>
+                </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -408,6 +425,17 @@ export default function LogisticsPage() {
                 </DialogClose>
                 <Button onClick={handleAddItem} disabled={!newItem.name}>Add Item</Button>
             </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isAiChatOpen} onOpenChange={setIsAiChatOpen}>
+        <DialogContent className="sm:max-w-lg">
+           <DialogHeader>
+                <DialogTitle>Diagnose Item with AI</DialogTitle>
+                <DialogDescription>
+                    Answer the AI's questions to diagnose the returned item.
+                </DialogDescription>
+            </DialogHeader>
+            <AiDiagnosticChat onComplete={handleAiDiagnoseComplete} />
         </DialogContent>
       </Dialog>
     </div>
