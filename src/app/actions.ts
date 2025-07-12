@@ -21,7 +21,7 @@ export async function identifyProductAction(input: IdentifyProductFromImageInput
 }
 
 export async function generateReportAction(input: GenerateSustainabilityReportInput): Promise<GenerateSustainabilityReportOutput> {
-    return await generateSustainabilityReport(input);
+    return await generateReportAction(input);
 }
 
 export async function getRecommendationsAction(input: GetInventoryRecommendationsInput): Promise<GetInventoryRecommendationsOutput> {
