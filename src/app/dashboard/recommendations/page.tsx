@@ -13,7 +13,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useReturns } from "@/hooks/use-returns";
 import { getRecommendationsAction } from "@/app/actions";
-import { Loader2, Sparkles, AlertTriangle, CheckCircle, FileText } from "lucide-react";
+import { Loader2, Sparkles, AlertTriangle, CheckCircle, FileText, Tag } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -26,11 +26,12 @@ import { Badge } from "@/components/ui/badge";
 
 interface Recommendation {
     id: string;
-    type: "inventory" | "supply chain";
+    type: "inventory" | "supply chain" | "product quality" | "customer experience";
     title: string;
     description: string;
     impact: "High" | "Medium" | "Low";
     confidence: number;
+    relatedProduct?: string;
 }
 
 export default function RecommendationsPage() {
@@ -43,6 +44,15 @@ export default function RecommendationsPage() {
     setIsLoading(true);
     setRecommendations([]);
     try {
+        if (items.length === 0) {
+            toast({
+                title: "No Data to Analyze",
+                description: "Please add some returned items before generating recommendations.",
+                variant: "destructive"
+            });
+            setIsLoading(false);
+            return;
+        }
         const result = await getRecommendationsAction({ returnedItems: JSON.stringify(items) });
         setRecommendations(result.recommendations);
         toast({
@@ -61,6 +71,19 @@ export default function RecommendationsPage() {
     }
   };
 
+  const getImpactStyles = (impact: "High" | "Medium" | "Low") => {
+    switch (impact) {
+      case "High":
+        return "text-destructive font-semibold";
+      case "Medium":
+        return "text-yellow-600 font-semibold";
+      case "Low":
+        return "text-muted-foreground";
+      default:
+        return "text-muted-foreground";
+    }
+  };
+
   return (
     <div className="space-y-6">
         <div className="space-y-2">
@@ -71,7 +94,7 @@ export default function RecommendationsPage() {
         </div>
         <Card>
             <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <CardTitle>Inventory & Supply Chain</CardTitle>
                         <CardDescription>
@@ -92,10 +115,10 @@ export default function RecommendationsPage() {
                  <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Type</TableHead>
+                            <TableHead className="w-[150px]">Type</TableHead>
                             <TableHead>Recommendation</TableHead>
-                            <TableHead>Impact</TableHead>
-                            <TableHead>Confidence</TableHead>
+                            <TableHead className="w-[120px]">Impact</TableHead>
+                            <TableHead className="w-[150px]">Confidence</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -113,19 +136,26 @@ export default function RecommendationsPage() {
                         {recommendations.map((rec) => (
                             <TableRow key={rec.id}>
                                 <TableCell>
-                                    <Badge variant={rec.type === 'inventory' ? 'secondary' : 'outline'} className="capitalize">{rec.type}</Badge>
+                                    <Badge variant={rec.type === 'inventory' ? 'secondary' : rec.type === 'supply chain' ? 'outline' : 'default'} className="capitalize">{rec.type.replace(/_/g, " ")}</Badge>
                                 </TableCell>
                                 <TableCell>
                                     <p className="font-medium">{rec.title}</p>
                                     <p className="text-xs text-muted-foreground">{rec.description}</p>
+                                    {rec.relatedProduct && (
+                                        <div className="flex items-center gap-2 mt-2">
+                                           <Tag className="size-3 text-muted-foreground" />
+                                           <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{rec.relatedProduct}</span>
+                                        </div>
+                                    )}
                                 </TableCell>
                                 <TableCell>
-                                    {rec.impact === "High" && <span className="flex items-center gap-2 text-destructive"><AlertTriangle className="size-4" /> {rec.impact}</span>}
-                                    {rec.impact === "Medium" && <span className="flex items-center gap-2 text-yellow-600">{rec.impact}</span>}
-                                    {rec.impact === "Low" && <span className="flex items-center gap-2 text-muted-foreground">{rec.impact}</span>}
+                                    <span className={`flex items-center gap-2 ${getImpactStyles(rec.impact)}`}>
+                                        {rec.impact === "High" && <AlertTriangle className="size-4" />}
+                                        {rec.impact}
+                                    </span>
                                 </TableCell>
                                 <TableCell>
-                                    <span className="flex items-center gap-2 text-green-600">
+                                    <span className="flex items-center gap-2 text-green-600 font-semibold">
                                         <CheckCircle className="size-4"/>
                                         {rec.confidence}%
                                     </span>
