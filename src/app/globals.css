@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     --background: 120 20% 95%;
@@ -37,8 +33,8 @@ body {
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 120 50% 50%;
     --sidebar-primary-foreground: 120 25% 10%;
-    --sidebar-accent: 120 20% 90%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-accent: hsl(120, 50%, 50%);
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 120 50% 50%;
   }
@@ -71,8 +67,8 @@ body {
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 120 50% 50%;
     --sidebar-primary-foreground: 120 25% 10%;
-    --sidebar-accent: 120 10% 17.5%;
-    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-accent: hsl(120, 50%, 50%);
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 120 10% 17.5%;
     --sidebar-ring: 120 50% 50%;
   }
@@ -84,5 +80,6 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
   }
 }
