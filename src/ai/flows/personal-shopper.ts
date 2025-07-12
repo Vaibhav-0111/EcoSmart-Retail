@@ -69,12 +69,12 @@ const ChatMessageSchema = z.object({
   content: z.string(),
 });
 
-export const PersonalShopperInputSchema = z.object({
+const PersonalShopperInputSchema = z.object({
   chatHistory: z.array(ChatMessageSchema).describe('The history of the conversation so far.'),
 });
 export type PersonalShopperInput = z.infer<typeof PersonalShopperInputSchema>;
 
-export const PersonalShopperOutputSchema = z.object({
+const PersonalShopperOutputSchema = z.object({
   response: z.string().describe('The AI\'s next response in the conversation.'),
   recommendedProducts: z.array(ProductSchema).optional().describe('A list of products the AI recommends based on the conversation.'),
 });
