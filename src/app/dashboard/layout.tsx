@@ -89,7 +89,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <SidebarHeader className="p-4">
                 <div className="flex items-center gap-2">
                     <Icons.logo className="size-8 text-primary" />
-                    <div>
+                    <div className="group-data-[collapsible=icon]:hidden">
                     <p className="text-lg font-semibold tracking-tight">
                         EcoSmart Retail
                     </p>
@@ -110,7 +110,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             </Sidebar>
             <SidebarInset>
                 <header className="flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-                <SidebarTrigger className="md:hidden" />
+                <SidebarTrigger />
                 <div className="hidden md:flex items-center gap-6 text-sm font-medium">
                     <HeaderStats />
                 </div>
