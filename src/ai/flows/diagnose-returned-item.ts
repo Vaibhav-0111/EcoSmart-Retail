@@ -102,11 +102,13 @@ const prompt = ai.definePrompt({
 
   Here is the conversation history:
   {{#each chatHistory}}
-  {{#if (eq role 'tool')}}
-  Tool: {{content}}
-  {{else}}
-  {{role}}: {{content}}
-  {{/if}}
+  {{#with (lookup (lookup . 'role') 'length') as |len|}}
+    {{#if (lookup ../. 'tool')}}
+    Tool: {{../content}}
+    {{else}}
+    {{../role}}: {{../content}}
+    {{/if}}
+  {{/with}}
   {{/each}}
   `,
 });
