@@ -15,7 +15,7 @@ export default function Home() {
           </Link>
           <nav>
             <Button asChild>
-              <Link href="/dashboard">Get Started</Link>
+              <Link href="/login">Get Started</Link>
             </Button>
           </nav>
         </div>
@@ -31,7 +31,7 @@ export default function Home() {
             </p>
             <div className="space-x-4">
               <Button asChild size="lg">
-                <Link href="/dashboard">Explore Dashboard</Link>
+                <Link href="/login">Explore Dashboard</Link>
               </Button>
             </div>
           </div>
