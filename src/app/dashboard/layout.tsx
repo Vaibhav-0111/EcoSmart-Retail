@@ -1,6 +1,7 @@
 // src/app/dashboard/layout.tsx
 "use client";
 
+import React, { useState, useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,10 +15,16 @@ import {
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Bell, Cog, User, Sparkles } from "lucide-react";
+import { Bell, Cog, User, Sparkles, Sun, Moon, Droplets, Palette } from "lucide-react";
 import { ReturnsProvider } from "@/context/ReturnsContext";
 import { useMemo } from "react";
 import { useReturns } from "@/hooks/use-returns";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 function HeaderStats() {
     const { items } = useReturns();
@@ -60,6 +67,40 @@ function UserNav() {
     </Button>
   );
 }
+
+function ThemeSwitcher() {
+  const [theme, setTheme] = useState("theme-forest");
+
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Palette className="h-5 w-5" />
+          <span className="sr-only">Change theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("theme-forest")}>
+          <Sun className="mr-2 h-4 w-4" />
+          <span>Forest</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("theme-ocean")}>
+          <Droplets className="mr-2 h-4 w-4" />
+          <span>Ocean</span>
+        </DropdownMenuItem>
+         <DropdownMenuItem onClick={() => setTheme("theme-sunset")}>
+          <Sun className="mr-2 h-4 w-4" />
+          <span>Sunset</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 
 function EcoImpactCard() {
     const { items } = useReturns();
@@ -116,6 +157,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 </div>
                 <div className="flex-1" />
                 <div className="flex items-center gap-4">
+                    <ThemeSwitcher />
                     <Button variant="ghost" size="icon">
                         <Cog className="size-5" />
                         <span className="sr-only">Settings</span>

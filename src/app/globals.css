@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root, .theme-forest {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -30,6 +30,19 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
+
+  .theme-ocean {
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 217.2 91.2% 59.8%;
+  }
+
+  .theme-sunset {
+    --primary: 25.7 89.9% 53.1%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 25.7 89.9% 53.1%;
+    --chart-2: 262.1 83.3% 57.8%;
+  }
  
   .dark {
     --background: 222.2 84% 4.9%;
@@ -38,8 +51,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 355.7 100% 97.3%;
+    /* --primary will be handled by theme classes */
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
@@ -50,7 +62,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 142.1 76.2% 36.3%;
+     /* --ring will be handled by theme classes */
   }
 }
  
@@ -69,9 +81,9 @@
     --sidebar-border: hsl(220 13% 91%);
     --sidebar-accent: hsl(220 13% 96%);
     --sidebar-accent-foreground: hsl(222.2 47.4% 11.2%);
-    --sidebar-primary: hsl(142.1 76.2% 36.3%);
-    --sidebar-primary-foreground: hsl(355.7 100% 97.3%);
-    --sidebar-ring: hsl(142.1 76.2% 36.3%);
+    --sidebar-primary: hsl(var(--primary));
+    --sidebar-primary-foreground: hsl(var(--primary-foreground));
+    --sidebar-ring: hsl(var(--ring));
   }
  
   .dark [data-sidebar="sidebar"] {
@@ -80,8 +92,8 @@
     --sidebar-border: hsl(217.2 32.6% 17.5%);
     --sidebar-accent: hsl(217.2 32.6% 17.5%);
     --sidebar-accent-foreground: hsl(210 40% 98%);
-    --sidebar-primary: hsl(142.1 76.2% 36.3%);
-    --sidebar-primary-foreground: hsl(355.7 100% 97.3%);
-    --sidebar-ring: hsl(142.1 76.2% 36.3%);
+    --sidebar-primary: hsl(var(--primary));
+    --sidebar-primary-foreground: hsl(var(--primary-foreground));
+    --sidebar-ring: hsl(var(--ring));
   }
 }
