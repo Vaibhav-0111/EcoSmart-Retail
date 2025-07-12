@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!auth || !googleProvider) {
             toast({
                 title: 'Configuration Error',
-                description: 'Firebase is not configured correctly. Please check your .env file.',
+                description: 'Firebase is not configured correctly. Please add your project credentials to the .env file.',
                 variant: 'destructive'
             });
             return;
@@ -44,13 +44,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         try {
             await signInWithPopup(auth, googleProvider);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error signing in with Google: ", error);
-            toast({
-                title: 'Login Failed',
-                description: 'Could not sign in with Google. Please try again.',
-                variant: 'destructive'
-            })
+             if (error.code === 'auth/invalid-api-key') {
+                 toast({
+                    title: 'Invalid API Key',
+                    description: 'The Firebase API key is not valid. Please check your .env file and ensure it is correct.',
+                    variant: 'destructive'
+                })
+            } else {
+                toast({
+                    title: 'Login Failed',
+                    description: 'Could not sign in with Google. Please try again.',
+                    variant: 'destructive'
+                })
+            }
             setLoading(false);
         }
     };
