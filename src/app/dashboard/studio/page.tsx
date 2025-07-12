@@ -46,7 +46,9 @@ export default function ProductStudioPage() {
 
       recognitionRef.current.onerror = (event: any) => {
         console.error("Speech recognition error", event.error);
-        toast({ title: "Voice Error", description: "Could not recognize speech.", variant: "destructive" });
+        if (event.error !== 'no-speech') {
+          toast({ title: "Voice Error", description: "Could not recognize speech.", variant: "destructive" });
+        }
         setIsListening(false);
       };
       
@@ -65,8 +67,15 @@ export default function ProductStudioPage() {
         toast({ title: "Unsupported", description: "Voice recognition is not supported in your browser.", variant: "destructive" });
         return;
       }
-      recognitionRef.current?.start();
-      setIsListening(true);
+      // Prevent starting if already active
+      try {
+        recognitionRef.current?.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error("Could not start recognition:", error)
+        // This might happen if it's already started, so we'll just ensure state is correct
+        setIsListening(false);
+      }
     }
   };
 
@@ -205,6 +214,7 @@ export default function ProductStudioPage() {
                                 layout="fill"
                                 objectFit="contain"
                                 className="transition-opacity duration-500 opacity-100"
+                                data-ai-hint="product photo"
                             />
                             <div className="absolute bottom-4 right-4 flex gap-2">
                                 <Button
