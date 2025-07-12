@@ -22,7 +22,7 @@ export default function ShopLayout({
               <User className="size-5" />
             </Button>
             <Button asChild>
-              <Link href="/dashboard">Employee Dashboard</Link>
+              <Link href="/login">Employee Dashboard</Link>
             </Button>
           </div>
         </div>

@@ -18,7 +18,7 @@ export default function Home() {
               <Link href="/shop">AI Shopper</Link>
             </Button>
             <Button asChild>
-              <Link href="/dashboard">Employee Dashboard</Link>
+              <Link href="/login">Employee Dashboard</Link>
             </Button>
           </nav>
         </div>
@@ -34,7 +34,7 @@ export default function Home() {
             </p>
             <div className="space-x-4">
               <Button asChild size="lg" variant="outline">
-                <Link href="/dashboard">Explore Dashboard</Link>
+                <Link href="/login">Explore Dashboard</Link>
               </Button>
                <Button asChild size="lg">
                 <Link href="/shop">Try AI Shopper</Link>
