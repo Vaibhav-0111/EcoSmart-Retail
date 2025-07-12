@@ -21,7 +21,7 @@ export default function Home() {
         </div>
       </header>
       <main className="flex-1">
-        <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32">
+        <section className="flex-1 flex items-center justify-center">
           <div className="container flex max-w-[64rem] flex-col items-center gap-4 text-center">
             <h1 className="font-headline text-3xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">
               EcoSmart Retail
