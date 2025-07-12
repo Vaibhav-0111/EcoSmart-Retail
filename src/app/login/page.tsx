@@ -1,7 +1,6 @@
 // src/app/login/page.tsx
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,19 +10,41 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Icons } from '@/components/icons';
+import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+
+const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg role="img" viewBox="0 0 24 24" {...props}>
+      <path
+        fill="currentColor"
+        d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.37 1.62-3.82 1.62-3.01 0-5.4-2.43-5.4-5.4s2.39-5.4 5.4-5.4c1.32 0 2.5.54 3.38 1.38l2.53-2.52C16.95 3.24 14.88 2 12.48 2c-4.97 0-9 4.03-9 9s4.03 9 9 9c5.05 0 8.67-3.48 8.67-8.82C21.15 11.45 21.08 11.18 21 10.92z"
+      ></path>
+    </svg>
+  );
+
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, loading, loginWithGoogle } = useAuth();
+  const isFirebaseConfigured = !!auth;
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real application, you would perform authentication here.
-    // For this prototype, we'll just redirect to the dashboard.
-    router.push('/dashboard');
-  };
+  useEffect(() => {
+    if (user) {
+        router.replace('/dashboard');
+    }
+  }, [user, router]);
+
+
+  if(loading || user) {
+    return (
+        <div className="flex min-h-screen flex-col items-center justify-center">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -32,45 +53,22 @@ export default function LoginPage() {
         <h1>EcoSmart Retail</h1>
       </div>
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Welcome</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            {isFirebaseConfigured ? 'Sign in to access your dashboard' : 'Firebase is not configured.'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm underline"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-            <Button type="submit" className="w-full">
-              Login
+            <Button onClick={loginWithGoogle} className="w-full" variant="outline" disabled={!isFirebaseConfigured}>
+              <GoogleIcon className="mr-2 h-4 w-4" />
+              Sign in with Google
             </Button>
-          </form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
-            <Link href="#" className="underline">
-              Sign up
-            </Link>
-          </div>
+             {!isFirebaseConfigured && (
+              <p className="mt-4 text-center text-xs text-destructive">
+                Please add your Firebase credentials to the .env file to enable login.
+              </p>
+            )}
         </CardContent>
       </Card>
     </div>

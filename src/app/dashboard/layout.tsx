@@ -14,10 +14,16 @@ import {
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Bell, Cog, Sparkles, Sprout } from "lucide-react";
+import { Bell, Cog, LogOut, Sparkles, Sprout } from "lucide-react";
 import { ReturnsProvider } from "@/context/ReturnsContext";
 import { useMemo } from "react";
 import { useReturns } from "@/hooks/use-returns";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 
 function HeaderStats() {
     const { items } = useReturns();
@@ -74,66 +80,118 @@ function EcoImpactCard() {
     );
 }
 
+function UserNav() {
+  const { user, logout } = useAuth();
+  if (!user) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={user.photoURL!} alt={user.displayName!} />
+            <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user.displayName}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={logout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+
+function DashboardContent({ children }: { children: React.ReactNode }) {
+    return (
+         <SidebarProvider>
+            <Sidebar>
+                <SidebarHeader className="p-4">
+                <div className="flex items-center gap-2">
+                    <Icons.logo className="size-8 text-primary" />
+                    <div>
+                    <p className="text-lg font-semibold tracking-tight">
+                        EcoSmart Retail
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                        Walmart Hackathon 2025
+                    </p>
+                    </div>
+                </div>
+                </SidebarHeader>
+                <SidebarContent className="p-4">
+                <DashboardNav />
+                </SidebarContent>
+                <SidebarFooter className="p-4">
+                <SidebarGroup>
+                    <EcoImpactCard />
+                </SidebarGroup>
+                </SidebarFooter>
+            </Sidebar>
+            <SidebarInset>
+                <header className="flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
+                <SidebarTrigger className="md:hidden" />
+                <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+                    <HeaderStats />
+                </div>
+                <div className="flex-1" />
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <Sprout className="size-4" />
+                        Live Demo
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                        <Bell className="size-5" />
+                        <span className="sr-only">Notifications</span>
+                    </Button>
+                    <UserNav />
+                </div>
+                </header>
+                <main className="flex-1 overflow-auto p-4 sm:p-6 bg-secondary/50">
+                {children}
+                </main>
+            </SidebarInset>
+        </SidebarProvider>
+    );
+}
+
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  if (loading) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center">
+            <Skeleton className="h-screen w-full" />
+        </div>
+    );
+  }
+
+  if (!user) {
+    router.replace("/login");
+    return null;
+  }
+  
   return (
     <ReturnsProvider>
-        <SidebarProvider>
-        <Sidebar>
-            <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2">
-                <Icons.logo className="size-8 text-primary" />
-                <div>
-                <p className="text-lg font-semibold tracking-tight">
-                    EcoSmart Retail
-                </p>
-                <p className="text-xs text-muted-foreground">
-                    Walmart Hackathon 2025
-                </p>
-                </div>
-            </div>
-            </SidebarHeader>
-            <SidebarContent className="p-4">
-            <DashboardNav />
-            </SidebarContent>
-            <SidebarFooter className="p-4">
-            <SidebarGroup>
-                <EcoImpactCard />
-            </SidebarGroup>
-            </SidebarFooter>
-        </Sidebar>
-        <SidebarInset>
-            <header className="flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-            <SidebarTrigger className="md:hidden" />
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-                <HeaderStats />
-            </div>
-            <div className="flex-1" />
-            <div className="flex items-center gap-4">
-                <Button variant="outline" size="sm" className="gap-2">
-                    <Sprout className="size-4" />
-                    Live Demo
-                </Button>
-                <Button variant="ghost" size="icon">
-                    <Bell className="size-5" />
-                    <span className="sr-only">Notifications</span>
-                </Button>
-                <Button variant="ghost" size="icon">
-                    <Cog className="size-5" />
-                    <span className="sr-only">Settings</span>
-                </Button>
-                <Button size="sm">Demo Mode</Button>
-            </div>
-            </header>
-            <main className="flex-1 overflow-auto p-4 sm:p-6 bg-secondary/50">
-            {children}
-            </main>
-        </SidebarInset>
-        </SidebarProvider>
+        <DashboardContent>{children}</DashboardContent>
     </ReturnsProvider>
   );
 }
