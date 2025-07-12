@@ -206,7 +206,6 @@ export default function LogisticsPage() {
      return [
         { action: "Resell", value: counts.resell || 0, fill: "var(--color-resell)" },
         { action: "Repair", value: counts.repair || 0, fill: "var(--color-repair)" },
-        { action: "Reuse", value: counts.reuse || 0, fill: "var(--color-reuse)" },
         { action: "Recycle", value: counts.recycle || 0, fill: "var(--color-recycle)" },
      ]
   }, [items]);
