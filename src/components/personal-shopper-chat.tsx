@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { personalShopperAction, textToSpeechAction } from "@/app/actions";
-import { Loader2, Send, Bot, User, Sparkles, Mic, MicOff, Volume2 } from "lucide-react";
+import { personalShopperAction } from "@/app/actions";
+import { Loader2, Send, Bot, User, Sparkles, Mic, MicOff } from "lucide-react";
 
 // SpeechRecognition type might not be available on the window object, so we declare it.
 declare global {
@@ -38,10 +38,8 @@ export function PersonalShopperChat() {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isListening, setIsListening] = useState(false);
-    const [isSpeaking, setIsSpeaking] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const recognitionRef = useRef<any>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
     const { toast } = useToast();
     
     useEffect(() => {
@@ -92,35 +90,12 @@ export function PersonalShopperChat() {
         }
     };
 
-    const speak = async (text: string) => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      setIsSpeaking(true);
-      try {
-        const { audioDataUri } = await textToSpeechAction({ text });
-        const audio = new Audio(audioDataUri);
-        audioRef.current = audio;
-        audio.play();
-        audio.onended = () => {
-          setIsSpeaking(false);
-          audioRef.current = null;
-        };
-      } catch (error) {
-        console.error("Error generating or playing speech", error);
-        toast({ title: "Speech Error", description: "Could not play AI response.", variant: "destructive"});
-        setIsSpeaking(false);
-      }
-    };
-
-
     useEffect(() => {
         // Initial message from AI
         const getInitialMessage = async () => {
             try {
                 const result = await personalShopperAction({ chatHistory: [] });
                 setMessages([{ role: "model", content: result.response }]);
-                await speak(result.response);
             } catch (error) {
                 console.error(error);
                 toast({
@@ -150,12 +125,6 @@ export function PersonalShopperChat() {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
 
-        // Stop any currently playing audio
-        if (audioRef.current) {
-            audioRef.current.pause();
-            setIsSpeaking(false);
-        }
-
         const userMessage: ChatMessage = { role: "user", content: input };
         const newMessages: ChatMessage[] = [...messages, userMessage];
         setMessages(newMessages);
@@ -164,12 +133,7 @@ export function PersonalShopperChat() {
 
         try {
             const result = await personalShopperAction({ chatHistory: newMessages });
-
             setMessages(prev => [...prev, { role: "model", content: result.response, recommendedProducts: result.recommendedProducts }]);
-            
-            // Speak the new response
-            await speak(result.response);
-
         } catch (error) {
             console.error(error);
             toast({
@@ -191,9 +155,7 @@ export function PersonalShopperChat() {
                         <div key={index}>
                             <div className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
                                 {message.role === 'model' && 
-                                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => speak(message.content)} disabled={isSpeaking}>
-                                    {isSpeaking && messages[messages.length-1] === message ? <Loader2 className="size-4 animate-spin"/> : <Volume2 className="size-4"/>}
-                                  </Button>
+                                  <div className="p-2 rounded-full bg-primary/10 text-primary"><Bot className="size-5" /></div>
                                 }
                                 <div className={`rounded-lg px-4 py-2 max-w-[80%] ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                                     <p className="text-sm">{message.content}</p>
@@ -246,12 +208,12 @@ export function PersonalShopperChat() {
                         variant={isListening ? "destructive" : "outline"}
                         size="icon"
                         onClick={handleToggleListening}
-                        disabled={isLoading || isSpeaking}
+                        disabled={isLoading}
                         title={isListening ? "Stop listening" : "Use voice"}
                     >
                        {isListening ? <MicOff /> : <Mic />}
                     </Button>
-                    <Button type="submit" disabled={isLoading || !input.trim() || isSpeaking}>
+                    <Button type="submit" disabled={isLoading || !input.trim()}>
                         <Send className="size-4" />
                         <span className="sr-only">Send</span>
                     </Button>
