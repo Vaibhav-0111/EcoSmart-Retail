@@ -56,6 +56,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             description: "The provided Firebase API key is not valid. Please check your .env file.",
             variant: "destructive",
         });
+      } else if (error.code === 'auth/configuration-not-found') {
+        toast({
+           title: "Configuration Not Found",
+           description: "Google Sign-in is not enabled in your Firebase project. Please enable it in the Firebase Console under Authentication > Sign-in method.",
+           variant: "destructive",
+           duration: 10000,
+       });
       } else {
         toast({
             title: "Login Failed",
