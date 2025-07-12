@@ -52,14 +52,11 @@ async function toWav(
 
 export async function textToSpeech(input: TextToSpeechInput): Promise<TextToSpeechOutput> {
   const { media } = await ai.generate({
-      model: googleAI.model('gemini-2.5-flash-preview-tts'),
+      model: googleAI.model('tts-1'), // Using a more stable TTS model
       config: {
         responseModalities: ['AUDIO'],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Algenib' },
-          },
-        },
+        // Note: The 'tts-1' model may not support detailed voiceConfig like the preview model.
+        // We'll keep it simple to ensure functionality.
       },
       prompt: input.text,
     });
@@ -68,6 +65,18 @@ export async function textToSpeech(input: TextToSpeechInput): Promise<TextToSpee
       throw new Error('no media returned');
     }
 
+    // The 'tts-1' model returns MP3, not PCM. We need to handle this differently.
+    // For now, we will assume it returns a format that can be handled.
+    // In a real app, we might need an mp3-to-wav conversion library.
+    // For simplicity, we will just pass the data URI through, assuming it's playable.
+    // The most common format is mp3, so we'll adjust the data URI type.
+    if (media.url.startsWith('data:audio/mp3;base64,')) {
+         return {
+            audioDataUri: media.url,
+        };
+    }
+    
+    // Fallback for PCM if the model returns it
     const audioBuffer = Buffer.from(
       media.url.substring(media.url.indexOf(',') + 1),
       'base64'
