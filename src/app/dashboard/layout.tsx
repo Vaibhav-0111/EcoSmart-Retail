@@ -110,7 +110,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             </Sidebar>
             <SidebarInset>
                 <header className="flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-                <SidebarTrigger />
+                <SidebarTrigger className="md:flex hidden" />
                 <div className="hidden md:flex items-center gap-6 text-sm font-medium">
                     <HeaderStats />
                 </div>
