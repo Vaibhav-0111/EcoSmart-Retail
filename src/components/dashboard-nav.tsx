@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bot, LayoutDashboard, Recycle, Sparkles, BarChart, Sprout } from "lucide-react";
+import { LayoutDashboard, Recycle, Sparkles, BarChart, Sprout } from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuItem,
