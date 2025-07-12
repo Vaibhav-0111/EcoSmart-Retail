@@ -31,9 +31,14 @@ export async function generateSustainabilityReport(input: GenerateSustainability
   return generateSustainabilityReportFlow(input);
 }
 
+// Internal schema for the prompt, which includes the stringified action breakdown
+const PromptInputSchema = GenerateSustainabilityReportInputSchema.extend({
+    actionBreakdownString: z.string(),
+});
+
 const prompt = ai.definePrompt({
   name: 'generateSustainabilityReportPrompt',
-  input: {schema: GenerateSustainabilityReportInputSchema},
+  input: {schema: PromptInputSchema},
   output: {schema: GenerateSustainabilityReportOutputSchema},
   prompt: `You are an expert sustainability analyst for a major retail company.
   Your task is to generate a compelling, positive, and data-driven sustainability report based on the provided metrics.
@@ -44,7 +49,7 @@ const prompt = ai.definePrompt({
   - Waste Diverted from Landfill: {{{wasteDiverted}}}
   - Water Saved: {{{waterSaved}}}
   - Trees Saved: {{{treesSaved}}}
-  - Action Breakdown: {{{JSONstringify actionBreakdown}}}
+  - Action Breakdown: {{{actionBreakdownString}}}
 
   Structure your report with the following sections:
   1.  A powerful opening statement summarizing the overall positive impact.
@@ -63,7 +68,14 @@ const generateSustainabilityReportFlow = ai.defineFlow(
     outputSchema: GenerateSustainabilityReportOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    // Stringify the action breakdown object before passing it to the prompt.
+    const actionBreakdownString = JSON.stringify(input.actionBreakdown, null, 2);
+    
+    const {output} = await prompt({
+        ...input,
+        actionBreakdownString,
+    });
+
     return output!;
   }
 );
