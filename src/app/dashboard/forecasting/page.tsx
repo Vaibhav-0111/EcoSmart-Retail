@@ -32,7 +32,7 @@ const trendIcons = {
 const categoryFills: { [key in Forecast['category']]: string } = {
     electronics: "hsl(var(--chart-1))",
     clothing: "hsl(var(--chart-2))",
-    home goods: "hsl(var(--chart-3))",
+    "home goods": "hsl(var(--chart-3))",
     toys: "hsl(var(--chart-4))",
     other: "hsl(var(--chart-5))",
 }
