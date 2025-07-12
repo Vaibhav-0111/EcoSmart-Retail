@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { learnPreferencesAction, getSuggestionsAction } from "@/app/actions";
-import { Loader2, Sparkles, Bot, User, Wand2, ShoppingBag } from "lucide-react";
+import { Loader2, Sparkles, Bot, User, Wand2, ShoppingBag, Mic, MicOff } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -34,6 +34,63 @@ export default function AssistantPage() {
   const [chatInput, setChatInput] = useState("");
   const [isReplying, setIsReplying] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    // Check for browser support for SpeechRecognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0])
+          .map((result) => result.transcript)
+          .join('');
+        setChatInput(transcript);
+      };
+      
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+        toast({
+          title: "Voice Error",
+          description: `Could not recognize speech: ${event.error}`,
+          variant: "destructive",
+        })
+      };
+
+      recognitionRef.current = recognition;
+    } else {
+        toast({
+            title: "Voice Not Supported",
+            description: "Your browser does not support voice recognition.",
+            variant: "destructive"
+        })
+    }
+  }, [toast]);
+
+  const handleToggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+    } else {
+      recognitionRef.current?.start();
+    }
+  };
+
 
   const handleLearnPreferences = async () => {
     if (!browsingHistory && !purchaseHistory) {
@@ -70,6 +127,10 @@ export default function AssistantPage() {
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
+    
+    if (isListening) {
+        recognitionRef.current?.stop();
+    }
 
     const newMessages: ChatMessage[] = [
       ...chatMessages,
@@ -231,11 +292,21 @@ export default function AssistantPage() {
             <form onSubmit={handleChatSubmit} className="flex w-full items-center space-x-2">
               <Input
                 id="chat-input"
-                placeholder="Type your message..."
+                placeholder={isListening ? "Listening..." : "Type or speak your message..."}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 disabled={isReplying}
               />
+              <Button 
+                type="button" 
+                variant={isListening ? "destructive" : "outline"}
+                size="icon" 
+                onClick={handleToggleListening}
+                disabled={!recognitionRef.current || isReplying}
+              >
+                  {isListening ? <MicOff /> : <Mic />}
+                  <span className="sr-only">{isListening ? 'Stop listening' : 'Start listening'}</span>
+              </Button>
               <Button type="submit" disabled={isReplying || !chatInput.trim()}>
                 <Sparkles className="mr-2 h-4 w-4" /> Send
               </Button>
