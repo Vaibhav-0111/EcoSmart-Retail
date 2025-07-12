@@ -11,6 +11,9 @@ import { useReturns } from "@/hooks/use-returns";
 import { Button } from "@/components/ui/button";
 import { generateReportAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
+import { Remarkable } from 'remarkable';
+
+const md = new Remarkable();
 
 export default function SustainabilityPage() {
   const { items } = useReturns();
@@ -163,7 +166,7 @@ export default function SustainabilityPage() {
                       <p className="mt-2 text-muted-foreground">AI is drafting your report...</p>
                     </div>
                   ) : report ? (
-                     <div dangerouslySetInnerHTML={{ __html: report.replace(/\n/g, '<br/>') }} />
+                     <div dangerouslySetInnerHTML={{ __html: md.render(report) }} />
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center">
                       <p className="text-muted-foreground">Click the button below to generate a report.</p>
