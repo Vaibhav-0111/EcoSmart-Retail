@@ -11,39 +11,24 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-// Mock product database lookup
-const mockProductDatabase: Record<string, { category: 'electronics' | 'clothing' | 'home goods' | 'toys' | 'other'; value: number }> = {
-    "smart led tv 55-inch": { category: "electronics", value: 450 },
-    "winter jacket": { category: "clothing", value: 85 },
-    "non-stick frying pan": { category: "home goods", value: 30 },
-    "remote control car": { category: "toys", value: 45 },
-    "wireless headphones": { category: "electronics", value: 199 },
-    "summer dress": { category: "clothing", value: 60 },
-};
-
-const lookupProductInfo = ai.defineTool(
+const searchInternetForProductPrice = ai.defineTool(
     {
-        name: 'lookupProductInfo',
-        description: 'Looks up product information from the internal company database.',
+        name: 'searchInternetForProductPrice',
+        description: 'Searches the internet to find the current market price of a product.',
         inputSchema: z.object({
-            productName: z.string().describe('The name of the product to look up. Should be a generic name.'),
+            productName: z.string().describe('The name of the product to search for.'),
         }),
         outputSchema: z.object({
             found: z.boolean(),
-            category: z.enum(['electronics', 'clothing', 'home goods', 'toys', 'other']).optional(),
-            value: z.number().optional(),
+            estimatedPrice: z.number().optional().describe('The estimated price of the product in USD.'),
         }),
     },
     async (input) => {
-        const key = input.productName.toLowerCase().trim();
-        // A real implementation would query a database
-        for (const dbKey in mockProductDatabase) {
-            if (key.includes(dbKey)) {
-                const product = mockProductDatabase[dbKey];
-                return { found: true, category: product.category, value: product.value };
-            }
-        }
-        return { found: false };
+        // A real implementation would use a search API or web scraper.
+        // For this demo, we'll simulate it with a plausible random price.
+        console.log(`Simulating internet search for: ${input.productName}`);
+        const price = Math.floor(Math.random() * (400 - 20 + 1)) + 20;
+        return { found: true, estimatedPrice: price };
     }
 );
 
@@ -82,16 +67,16 @@ const prompt = ai.definePrompt({
   name: 'diagnoseReturnedItemPrompt',
   input: {schema: DiagnoseReturnedItemInputSchema},
   output: {schema: DiagnoseReturnedItemOutputSchema},
-  tools: [lookupProductInfo],
+  tools: [searchInternetForProductPrice],
   prompt: `You are an AI assistant helping a retail employee diagnose a returned item.
   Your goal is to gather the following information by asking questions:
   1. Product Name
-  2. Condition (must be one of: new, used, damaged)
-  3. Return Reason
+  2. Product Category (must be one of: electronics, clothing, home goods, toys, other)
+  3. Condition (must be one of: new, used, damaged)
+  4. Return Reason
 
-  When the user provides the product name, you MUST use the 'lookupProductInfo' tool to find its category and value.
-  If the tool finds the product, confirm the category and value with the user and then ask for the remaining information (condition, reason).
-  If the tool does not find the product, you must then ask the user for the Category and the Estimated Value.
+  When the user provides the product name, you MUST use the 'searchInternetForProductPrice' tool to find its estimated value.
+  After using the tool, confirm the estimated value with the user and then ask for the remaining information (Category, Condition, Reason).
 
   Keep your questions friendly, concise, and focused on gathering one piece of information at a time.
   Start the conversation by asking for the product name if the history is empty.
@@ -102,13 +87,11 @@ const prompt = ai.definePrompt({
 
   Here is the conversation history:
   {{#each chatHistory}}
-  {{#with (lookup (lookup . 'role') 'length') as |len|}}
-    {{#if (lookup ../. 'tool')}}
-    Tool: {{../content}}
+  {{#if (lookup . 'tool')}}
+    Tool: {{content}}
     {{else}}
-    {{../role}}: {{../content}}
+    {{role}}: {{content}}
     {{/if}}
-  {{/with}}
   {{/each}}
   `,
 });
