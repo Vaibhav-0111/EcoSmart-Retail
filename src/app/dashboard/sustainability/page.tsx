@@ -3,9 +3,9 @@
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { co2SavedData, co2SavedChartConfig, sustainabilityImpactMetrics as mockMetrics } from "@/lib/mock-data";
-import { ArrowUp, Loader2, Wand2 } from "lucide-react";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from "recharts";
+import { sustainabilityChartConfig } from "@/lib/mock-data";
+import { ArrowUp, Loader2, Wand2, Leaf, Recycle, Droplets, Trees } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { useReturns } from "@/hooks/use-returns";
 import { Button } from "@/components/ui/button";
@@ -15,33 +15,56 @@ import { Remarkable } from 'remarkable';
 
 const md = new Remarkable();
 
+// Define impact multipliers for a more realistic demo
+const IMPACT_MULTIPLIERS = {
+    resell: { co2: 5, waste: 2.5, water: 50, trees: 0.05 },
+    repair: { co2: 3, waste: 2.0, water: 30, trees: 0.02 },
+    reuse: { co2: 2, waste: 2.5, water: 20, trees: 0.01 },
+    recycle: { co2: 4, waste: 2.2, water: 40, trees: 0.04 },
+    landfill: { co2: 0, waste: 0, water: 0, trees: 0 },
+}
+
 export default function SustainabilityPage() {
   const { items } = useReturns();
   const [isGenerating, setIsGenerating] = useState(false);
   const [report, setReport] = useState("");
   const { toast } = useToast();
 
-  const { sustainabilityImpactMetrics, actionBreakdown } = useMemo(() => {
-    const co2Saved = items.length * 1.25; // Dummy calculation
-    const wasteDiverted = items.filter(item => item.recommendation !== 'landfill').length * 2.5; // Dummy calculation
-    const waterSaved = items.length * 45; // Dummy calculation
-    const treesSaved = items.length * 0.035; // Dummy calculation
+  const { sustainabilityImpactMetrics, actionBreakdown, actionBreakdownForChart } = useMemo(() => {
     
-    const actionBreakdown = items.reduce((acc, item) => {
-        if(item.recommendation) {
-            acc[item.recommendation] = (acc[item.recommendation] || 0) + 1;
+    let co2Saved = 0;
+    let wasteDiverted = 0;
+    let waterSaved = 0;
+    let treesSaved = 0;
+
+    const breakdown = items.reduce((acc, item) => {
+        const action = item.recommendation || 'landfill';
+        if (action !== 'landfill') {
+            acc[action] = (acc[action] || 0) + 1;
+            co2Saved += IMPACT_MULTIPLIERS[action].co2;
+            wasteDiverted += IMPACT_MULTIPLIERS[action].waste;
+            waterSaved += IMPACT_MULTIPLIERS[action].water;
+            treesSaved += IMPACT_MULTIPLIERS[action].trees;
         }
         return acc;
     }, {} as Record<string, number>);
 
+    const chartData = [
+        { action: "Resell", value: breakdown.resell || 0, fill: "var(--color-resell)" },
+        { action: "Repair", value: breakdown.repair || 0, fill: "var(--color-repair)" },
+        { action: "Reuse", value: breakdown.reuse || 0, fill: "var(--color-reuse)" },
+        { action: "Recycle", value: breakdown.recycle || 0, fill: "var(--color-recycle)" },
+    ];
+    
     return {
       sustainabilityImpactMetrics: [
-        { ...mockMetrics[0], value: `${co2Saved.toFixed(0)} kg` },
-        { ...mockMetrics[1], value: `${wasteDiverted.toFixed(0)} kg` },
-        { ...mockMetrics[2], value: `${waterSaved.toFixed(0)} L` },
-        { ...mockMetrics[3], value: `${treesSaved.toFixed(0)}` },
+        { icon: Leaf, title: "CO2 Emissions Saved", value: `${co2Saved.toFixed(1)} kg` },
+        { icon: Recycle, title: "Waste Diverted", value: `${wasteDiverted.toFixed(1)} kg` },
+        { icon: Droplets, title: "Water Saved", value: `${waterSaved.toFixed(0)} L` },
+        { icon: Trees, title: "Trees Saved (Equivalent)", value: `${treesSaved.toFixed(2)}` },
       ],
-      actionBreakdown,
+      actionBreakdown: breakdown,
+      actionBreakdownForChart: chartData
     };
   }, [items]);
 
@@ -78,7 +101,7 @@ export default function SustainabilityPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Sustainability Impact</h1>
         <p className="text-muted-foreground">
-          Detailed metrics on our positive environmental contributions.
+          Real-time metrics on our positive environmental contributions, based on processed items.
         </p>
       </div>
 
@@ -93,11 +116,7 @@ export default function SustainabilityPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">{metric.value}</div>
-                        <p className="text-xs text-muted-foreground">{metric.description}</p>
-                        <div className="flex items-center gap-1 text-xs text-green-600 font-semibold pt-2">
-                            <ArrowUp className="size-4" />
-                            <span>{metric.trend}</span>
-                        </div>
+                        <p className="text-xs text-muted-foreground">Calculated from all actions</p>
                     </CardContent>
                 </Card>
             )
@@ -108,46 +127,36 @@ export default function SustainabilityPage() {
         <div className="lg:col-span-3 space-y-6">
             <Card>
                 <CardHeader>
-                <CardTitle>CO2 Emissions Saved Over Time</CardTitle>
+                <CardTitle>Sustainability Actions Breakdown</CardTitle>
                 <CardDescription>
-                    This chart illustrates the cumulative carbon dioxide emissions (in kilograms) saved through our sustainability initiatives.
+                    This chart shows the number of items processed for each sustainable action, based on AI recommendations.
                 </CardDescription>
                 </CardHeader>
                 <CardContent>
-                <ChartContainer config={co2SavedChartConfig} className="min-h-[300px] w-full">
-                    <AreaChart
-                    accessibilityLayer
-                    data={co2SavedData}
-                    margin={{
-                        left: 12,
-                        right: 12,
-                    }}
-                    >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                        dataKey="month"
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        tickFormatter={(value) => value.slice(0, 3)}
-                    />
-                    <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        tickFormatter={(value) => `${value} kg`}
-                    />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    <Area
-                        dataKey="co2"
-                        type="natural"
-                        fill="var(--color-co2)"
-                        fillOpacity={0.4}
-                        stroke="var(--color-co2)"
-                        stackId="a"
-                    />
-                    </AreaChart>
+                <ChartContainer config={sustainabilityChartConfig} className="min-h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={actionBreakdownForChart}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis 
+                                dataKey="action"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
+                            />
+                            <YAxis 
+                                allowDecimals={false}
+                            />
+                            <ChartTooltip 
+                                cursor={false} 
+                                content={<ChartTooltipContent indicator="dot" />} 
+                            />
+                            <ChartLegend content={<ChartLegendContent />} />
+                            <Bar 
+                                dataKey="value" 
+                                radius={4}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </ChartContainer>
                 </CardContent>
             </Card>
@@ -168,14 +177,14 @@ export default function SustainabilityPage() {
                      <div dangerouslySetInnerHTML={{ __html: md.render(report) }} />
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center">
-                      <p className="text-muted-foreground">Click the button below to generate a report.</p>
+                      <p className="text-muted-foreground">Click the button below to generate a report based on the current dynamic data.</p>
                     </div>
                   )}
                 </CardContent>
                  <CardFooter>
-                    <Button onClick={handleGenerateReport} disabled={isGenerating} className="w-full">
+                    <Button onClick={handleGenerateReport} disabled={isGenerating || items.length === 0} className="w-full">
                         {isGenerating ? <Loader2 className="mr-2 size-4 animate-spin"/> : <Wand2 className="mr-2 size-4"/>}
-                        Generate Report
+                        {items.length === 0 ? "Add items to generate" : "Generate Report"}
                     </Button>
                 </CardFooter>
             </Card>
