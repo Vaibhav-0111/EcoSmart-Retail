@@ -7,8 +7,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarGroup,
-  SidebarGroupLabel,
 } from "@/components/ui/sidebar";
 
 const links = [
@@ -31,7 +29,7 @@ const links = [
     icon: <Bot />,
   },
     {
-    href: "#",
+    href: "/dashboard/sustainability",
     label: "Sustainability",
     description: "Environmental Impact",
     icon: <Sprout />,

@@ -1,4 +1,5 @@
 import { ReturnedItem } from "./types";
+import { Leaf, Recycle, Droplets, Trees } from "lucide-react";
 
 export const mockReturnedItems: ReturnedItem[] = [
   {
@@ -72,5 +73,57 @@ export const sustainabilityChartConfig = {
   recycle: {
     label: "Recycle",
     color: "hsl(var(--chart-5))",
+  },
+} satisfies import("@/components/ui/chart").ChartConfig;
+
+export const sustainabilityImpactMetrics = [
+    {
+        icon: Leaf,
+        title: "CO2 Emissions Saved",
+        value: "1,250 kg",
+        description: "Equivalent to planting 20 trees",
+        trend: "+15% this month",
+    },
+    {
+        icon: Recycle,
+        title: "Waste Diverted from Landfill",
+        value: "5,800 kg",
+        description: "Total items recycled or reused",
+        trend: "+12% this month",
+    },
+    {
+        icon: Droplets,
+        title: "Water Saved",
+        value: "450,000 L",
+        description: "Through recycling and reuse programs",
+        trend: "+8% this month",
+    },
+    {
+        icon: Trees,
+        title: "Trees Saved",
+        value: "350",
+        description: "By using recycled packaging",
+        trend: "+10% this month",
+    },
+];
+
+
+export const co2SavedData = [
+  { month: "January", co2: 186 },
+  { month: "February", co2: 305 },
+  { month: "March", co2: 437 },
+  { month: "April", co2: 573 },
+  { month: "May", co2: 609 },
+  { month: "June", co2: 789 },
+  { month: "July", co2: 921 },
+  { month: "August", co2: 1050 },
+  { month: "September", co2: 1180 },
+  { month: "October", co2: 1250 },
+];
+
+export const co2SavedChartConfig = {
+  co2: {
+    label: "CO2 Saved (kg)",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies import("@/components/ui/chart").ChartConfig;
