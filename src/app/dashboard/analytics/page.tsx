@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Line, LineChart } from "recharts";
 import { Timer, TrendingUp, CircleDollarSign, CheckSquare } from "lucide-react";
-import { revenueByActionChartConfig, processingTimeChartConfig } from "@/lib/mock-data";
+import { revenueByActionChartConfig } from "@/lib/mock-data";
 
 
 export default function AnalyticsPage() {
@@ -25,7 +25,8 @@ export default function AnalyticsPage() {
         const successRate = totalProcessed > 0 ? (successfullyProcessed / totalProcessed) * 100 : 0;
         const revenueRecovered = items.reduce((acc, item) => {
             if (item.recommendation && ['resell', 'repair'].includes(item.recommendation)) {
-                return acc + item.value;
+                // Assuming full value for resell, and 30% for repair (as it's a cost saving)
+                return acc + (item.recommendation === 'resell' ? item.value : item.value * 0.3);
             }
             return acc;
         }, 0);
@@ -57,25 +58,18 @@ export default function AnalyticsPage() {
             },
         ];
 
-        const revenueByActionData = items.reduce((acc, item) => {
-            const month = "Current"; // Simplified for now
-            let existing = acc.find(d => d.month === month);
-            if (!existing) {
-                existing = { month, resell: 0, repair: 0, recycle: 0 };
-                acc.push(existing);
-            }
-            if (item.recommendation === 'resell') existing.resell += item.value;
-            if (item.recommendation === 'repair') existing.repair += item.value * 0.3; // Assuming repair cost is 30% of value
-            if (item.recommendation === 'recycle') existing.recycle += 5; // Fixed value for recycling
+        // This calculation is now dynamic based on the items
+        const revenueData = items.reduce((acc, item) => {
+            if (item.recommendation === 'resell') acc.resell += item.value;
+            // Assuming repair recovers 30% of original value
+            if (item.recommendation === 'repair') acc.repair += item.value * 0.3;
+            // Assuming recycling provides a fixed $5 material credit
+            if (item.recommendation === 'recycle') acc.recycle += 5; 
             return acc;
-        }, [] as { month: string, resell: number, repair: number, recycle: number }[]);
-
-        if (revenueByActionData.length === 0) {
-            revenueByActionData.push({ month: 'Current', resell: 0, repair: 0, recycle: 0 });
-        }
+        }, { month: 'Current', resell: 0, repair: 0, recycle: 0 });
 
 
-        return { analyticsMetrics, revenueByActionData };
+        return { analyticsMetrics, revenueByActionData: [revenueData] };
 
     }, [items]);
 
@@ -124,7 +118,7 @@ export default function AnalyticsPage() {
                   tickMargin={10}
                   axisLine={false}
                 />
-                <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
+                <YAxis tickFormatter={(value) => `$${value}`} />
                 <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                 <ChartLegend content={<ChartLegendContent />} />
                 <Bar dataKey="resell" stackId="a" fill="var(--color-resell)" radius={[4, 4, 0, 0]} />
