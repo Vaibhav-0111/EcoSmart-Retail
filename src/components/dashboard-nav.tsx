@@ -42,8 +42,8 @@ const links = [
   },
   {
     href: "/dashboard/recommendations",
-    label: "AI Analytics",
-    description: "Recommendations & Forecasts",
+    label: "Recommendations",
+    description: "AI-Powered Business Insights",
     icon: <Sparkles />,
   },
   {
