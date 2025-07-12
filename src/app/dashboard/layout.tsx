@@ -9,6 +9,7 @@ import {
   SidebarProvider,
   SidebarFooter,
   SidebarGroup,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Icons } from "@/components/icons";
