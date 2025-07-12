@@ -63,6 +63,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
            variant: "destructive",
            duration: 10000,
        });
+      } else if (error.code === 'auth/unauthorized-domain') {
+        toast({
+           title: "Domain Not Authorized",
+           description: "This app's domain is not authorized for Firebase Authentication. Please add it in the Firebase Console under Authentication > Settings > Authorized domains.",
+           variant: "destructive",
+           duration: 10000,
+       });
       } else {
         toast({
             title: "Login Failed",
