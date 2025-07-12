@@ -94,7 +94,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                         EcoSmart Retail
                     </p>
                     <p className="text-xs text-muted-foreground">
-                        Walmart Hackathon 2025
+                        Retail Hackathon 2025
                     </p>
                     </div>
                 </div>

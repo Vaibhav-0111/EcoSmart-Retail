@@ -77,7 +77,7 @@ export default function DashboardOverview() {
             <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight">Welcome to EcoSmart Retail</h1>
                 <p className="text-primary-foreground/80">
-                AI-powered sustainable retail operations for Walmart
+                AI-powered sustainable retail operations.
                 </p>
                 <div className="flex items-center gap-2 pt-2">
                     <Badge variant="secondary" className="gap-2 bg-white/20 border-0 text-white"><Leaf className="size-3"/> {wasteReduction.toFixed(0)}% Waste Reduction</Badge>
