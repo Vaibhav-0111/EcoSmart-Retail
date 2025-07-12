@@ -23,12 +23,6 @@ const links = [
     icon: <Recycle />,
   },
   {
-    href: "/dashboard/assistant",
-    label: "AI Assistant",
-    description: "Smart Shopping Guide",
-    icon: <Bot />,
-  },
-    {
     href: "/dashboard/sustainability",
     label: "Sustainability",
     description: "Environmental Impact",
