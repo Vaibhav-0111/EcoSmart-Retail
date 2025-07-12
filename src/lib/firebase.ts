@@ -1,6 +1,6 @@
 // src/lib/firebase.ts
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,20 +11,26 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-let app;
-if (!getApps().length) {
-    // Check if all required environment variables are present
-    if (Object.values(firebaseConfig).every(val => val)) {
-        app = initializeApp(firebaseConfig);
-    } else {
-        console.error("Firebase config is missing. Please check your .env file.");
-    }
-} else {
-    app = getApp();
+// Function to check if all config values are present
+const isFirebaseConfigured = () => {
+    return Object.values(firebaseConfig).every(val => !!val);
 }
 
-const auth = app ? getAuth(app) : null;
-const googleProvider = app ? new GoogleAuthProvider() : null;
+let app: FirebaseApp | undefined;
+let auth: Auth | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
 
-export { app, auth, googleProvider };
+if (isFirebaseConfigured()) {
+    if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+    } else {
+        app = getApp();
+    }
+}
+
+if (app) {
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+}
+
+export { app, auth, googleProvider, isFirebaseConfigured };

@@ -14,7 +14,8 @@ import { Icons } from '@/components/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { auth } from '@/lib/firebase';
+import { isFirebaseConfigured } from '@/lib/firebase';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg role="img" viewBox="0 0 24 24" {...props}>
@@ -29,7 +30,7 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading, loginWithGoogle } = useAuth();
-  const isFirebaseConfigured = !!auth;
+  const firebaseReady = isFirebaseConfigured();
 
   useEffect(() => {
     if (user) {
@@ -56,18 +57,21 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Welcome</CardTitle>
           <CardDescription>
-            {isFirebaseConfigured ? 'Sign in to access your dashboard' : 'Firebase is not configured.'}
+            Sign in to access your dashboard
           </CardDescription>
         </CardHeader>
-        <CardContent>
-            <Button onClick={loginWithGoogle} className="w-full" variant="outline" disabled={!isFirebaseConfigured}>
+        <CardContent className="space-y-4">
+            <Button onClick={loginWithGoogle} className="w-full" variant="outline" disabled={!firebaseReady}>
               <GoogleIcon className="mr-2 h-4 w-4" />
               Sign in with Google
             </Button>
-             {!isFirebaseConfigured && (
-              <p className="mt-4 text-center text-xs text-destructive">
-                Please add your Firebase credentials to the .env file to enable login.
-              </p>
+             {!firebaseReady && (
+                <Alert variant="destructive">
+                  <AlertTitle>Firebase Not Configured</AlertTitle>
+                  <AlertDescription>
+                    Please add your Firebase project credentials to the .env file at the root of this project to enable authentication.
+                  </AlertDescription>
+                </Alert>
             )}
         </CardContent>
       </Card>

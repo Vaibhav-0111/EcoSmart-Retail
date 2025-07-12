@@ -2,7 +2,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { auth, googleProvider } from '@/lib/firebase';
+import { auth, googleProvider, isFirebaseConfigured } from '@/lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,9 +21,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { toast } = useToast();
 
     useEffect(() => {
-        if (!auth) {
+        if (!isFirebaseConfigured() || !auth) {
             setLoading(false);
-            console.error("Firebase not initialized. Cannot set up auth state change listener.");
             return;
         }
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -37,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!auth || !googleProvider) {
             toast({
                 title: 'Configuration Error',
-                description: 'Firebase is not configured correctly. Please check your API keys.',
+                description: 'Firebase is not configured correctly. Please check your .env file.',
                 variant: 'destructive'
             });
             return;
