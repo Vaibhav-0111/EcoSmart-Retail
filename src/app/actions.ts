@@ -10,7 +10,8 @@ import { generateProductImage, type GenerateProductImageInput, type GenerateProd
 import { describeImage, type DescribeImageInput, type DescribeImageOutput } from '@/ai/flows/describe-image';
 import { textToSpeech, type TextToSpeechInput, type TextToSpeechOutput } from '@/ai/flows/text-to-speech';
 import { generateResaleListing, type GenerateResaleListingInput, type GenerateResaleListingOutput } from '@/ai/flows/generate-resale-listing';
-import { personalShopper, type PersonalShopperInput, type PersonalShopperOutput } from '@/ai/flows/personal-shopper';
+import { personalShopper } from '@/ai/flows/personal-shopper';
+import type { PersonalShopperInput, PersonalShopperOutput } from '@/ai/flows/personal-shopper';
 
 
 export async function getRecommendationAction(input: RecommendReturnedItemActionInput): Promise<RecommendReturnedItemActionOutput> {
