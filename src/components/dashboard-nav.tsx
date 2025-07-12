@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Recycle, Sparkles, BarChart, Sprout } from "lucide-react";
+import { LayoutDashboard, Recycle, Sparkles, BarChart, Sprout, Image } from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -39,6 +39,12 @@ const links = [
     label: "AI Analytics",
     description: "Recommendations & Forecasts",
     icon: <Sparkles />,
+  },
+  {
+    href: "/dashboard/studio",
+    label: "Product Studio",
+    description: "AI Image Generation",
+    icon: <Image />,
   },
 ];
 

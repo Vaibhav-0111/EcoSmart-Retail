@@ -6,6 +6,7 @@ import { generateSustainabilityReport, type GenerateSustainabilityReportInput, t
 import { getInventoryRecommendations, type GetInventoryRecommendationsInput, type GetInventoryRecommendationsOutput } from '@/ai/flows/get-inventory-recommendations';
 import { diagnoseReturnedItem, type DiagnoseReturnedItemInput, type DiagnoseReturnedItemOutput } from '@/ai/flows/diagnose-returned-item';
 import { forecastReturns, type ForecastReturnsInput, type ForecastReturnsOutput } from '@/ai/flows/forecast-returns';
+import { generateProductImage, type GenerateProductImageInput, type GenerateProductImageOutput } from '@/ai/flows/generate-product-image';
 
 
 export async function getRecommendationAction(input: RecommendReturnedItemActionInput): Promise<RecommendReturnedItemActionOutput> {
@@ -30,4 +31,8 @@ export async function diagnoseItemAction(input: DiagnoseReturnedItemInput): Prom
 
 export async function forecastReturnsAction(input: ForecastReturnsInput): Promise<ForecastReturnsOutput> {
     return await forecastReturns(input);
+}
+
+export async function generateProductImageAction(input: GenerateProductImageInput): Promise<GenerateProductImageOutput> {
+    return await generateProductImage(input);
 }
