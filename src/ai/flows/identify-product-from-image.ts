@@ -23,6 +23,7 @@ export type IdentifyProductFromImageInput = z.infer<typeof IdentifyProductFromIm
 const IdentifyProductFromImageOutputSchema = z.object({
   productName: z.string().describe('The identified name of the product.'),
   category: z.enum(['electronics', 'clothing', 'home goods', 'toys', 'other']).describe('The most likely category for the product.'),
+  estimatedValue: z.number().describe('The estimated retail value of the product in USD. Provide only a number.'),
 });
 export type IdentifyProductFromImageOutput = z.infer<typeof IdentifyProductFromImageOutputSchema>;
 
@@ -35,9 +36,9 @@ const prompt = ai.definePrompt({
   input: {schema: IdentifyProductFromImageInputSchema},
   output: {schema: IdentifyProductFromImageOutputSchema},
   prompt: `You are an expert product identifier for a large retail store.
-Your task is to identify the product in the provided image and determine its category.
+Your task is to identify the product in the provided image, determine its category, and estimate its retail value in USD.
 
-Provide a concise product name and select the most appropriate category from the available options.
+Provide a concise product name, select the most appropriate category, and give an estimated value.
 
 Photo: {{media url=photoDataUri}}`,
 });

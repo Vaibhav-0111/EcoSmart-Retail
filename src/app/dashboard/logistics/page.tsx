@@ -70,7 +70,7 @@ export default function LogisticsPage() {
   const { toast } = useToast();
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newItem, setNewItem] = useState<Omit<ReturnedItem, 'id'>>({ name: '', category: 'electronics', condition: 'new', returnReason: '' });
+  const [newItem, setNewItem] = useState<Omit<ReturnedItem, 'id'>>({ name: '', category: 'electronics', condition: 'new', returnReason: '', value: 0 });
   const [isScanning, setIsScanning] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -118,7 +118,7 @@ export default function LogisticsPage() {
 
         try {
             const result = await identifyProductAction({ photoDataUri: dataUri });
-            setNewItem(prev => ({...prev, name: result.productName, category: result.category as any}));
+            setNewItem(prev => ({...prev, name: result.productName, category: result.category as any, value: result.estimatedValue}));
              toast({
                 title: "Product Identified!",
                 description: "The AI has pre-filled the item details for you.",
@@ -141,7 +141,7 @@ export default function LogisticsPage() {
       const itemToAdd: ReturnedItem = { ...newItem, id: newId };
       setReturnedItems(prev => [itemToAdd, ...prev]);
       setIsAddDialogOpen(false);
-      setNewItem({ name: '', category: 'electronics', condition: 'new', returnReason: '' });
+      setNewItem({ name: '', category: 'electronics', condition: 'new', returnReason: '', value: 0 });
       toast({
           title: "Item Added",
           description: `${itemToAdd.name} has been added to the returns list.`,
@@ -211,6 +211,7 @@ export default function LogisticsPage() {
                     <TableHead>Product</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Condition</TableHead>
+                    <TableHead className="text-right">Value</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -226,6 +227,7 @@ export default function LogisticsPage() {
                       <TableCell>
                         <Badge variant={item.condition === 'damaged' ? 'destructive' : 'secondary'} className="capitalize">{item.condition}</Badge>
                       </TableCell>
+                       <TableCell className="text-right font-medium">${item.value.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -345,6 +347,10 @@ export default function LogisticsPage() {
                      <div>
                         <Label htmlFor="item-name">Product Name</Label>
                         <Input id="item-name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
+                    </div>
+                     <div>
+                        <Label htmlFor="item-value">Estimated Value ($)</Label>
+                        <Input id="item-value" type="number" value={newItem.value} onChange={e => setNewItem({...newItem, value: parseFloat(e.target.value) || 0})} />
                     </div>
                      <div>
                         <Label htmlFor="item-category">Category</Label>

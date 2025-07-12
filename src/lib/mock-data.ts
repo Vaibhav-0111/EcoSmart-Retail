@@ -9,6 +9,7 @@ export const mockReturnedItems: ReturnedItem[] = [
     category: "electronics",
     condition: "used",
     returnReason: "Customer changed their mind.",
+    value: 450,
   },
   {
     id: "R-1002",
@@ -16,6 +17,7 @@ export const mockReturnedItems: ReturnedItem[] = [
     category: "clothing",
     condition: "new",
     returnReason: "Incorrect size ordered.",
+    value: 85,
   },
   {
     id: "R-1003",
@@ -23,6 +25,7 @@ export const mockReturnedItems: ReturnedItem[] = [
     category: "home goods",
     condition: "damaged",
     returnReason: "Item arrived with a dent.",
+    value: 30,
   },
   {
     id: "R-1004",
@@ -30,6 +33,7 @@ export const mockReturnedItems: ReturnedItem[] = [
     category: "toys",
     condition: "used",
     returnReason: "Faulty remote control.",
+    value: 45,
   },
     {
     id: "R-1005",
@@ -37,6 +41,7 @@ export const mockReturnedItems: ReturnedItem[] = [
     category: "electronics",
     condition: "new",
     returnReason: "Unwanted gift.",
+    value: 199,
   },
     {
     id: "R-1006",
@@ -44,6 +49,7 @@ export const mockReturnedItems: ReturnedItem[] = [
     category: "clothing",
     condition: "used",
     returnReason: "Doesn't fit as expected.",
+    value: 60,
   },
 ];
 

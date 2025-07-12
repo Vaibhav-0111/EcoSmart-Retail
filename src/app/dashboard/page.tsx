@@ -136,7 +136,7 @@ export default function DashboardOverview() {
                         </TableCell>
                         <TableCell><Badge variant="secondary">Like New</Badge></TableCell>
                         <TableCell><Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50"><DollarSign className="size-3 mr-1" /> Resell</Badge></TableCell>
-                        <TableCell className="text-right font-medium">$899</TableCell>
+                        <TableCell className="text-right font-medium">$899.00</TableCell>
                     </TableRow>
                      <TableRow>
                         <TableCell>
@@ -145,7 +145,7 @@ export default function DashboardOverview() {
                         </TableCell>
                         <TableCell><Badge variant="secondary">Used</Badge></TableCell>
                         <TableCell><Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50"><Recycle className="size-3 mr-1" /> Recycle</Badge></TableCell>
-                        <TableCell className="text-right font-medium">$120</TableCell>
+                        <TableCell className="text-right font-medium">$120.00</TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
