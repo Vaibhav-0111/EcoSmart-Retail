@@ -46,7 +46,7 @@ export default function LoginPage() {
               <AlertTitle>Configuration Missing</AlertTitle>
               <AlertDescription>
                 Firebase credentials are not set up. Please add them to your
-                <code>.env</code> file to enable login.
+                <code>.env</code> file at the root of the project to enable login.
               </AlertDescription>
             </Alert>
           )}

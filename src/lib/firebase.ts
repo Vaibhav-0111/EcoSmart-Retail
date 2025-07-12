@@ -20,8 +20,8 @@ if (!getApps().length) {
   if (isConfigured) {
     app = initializeApp(firebaseConfig);
   } else {
-    console.error("Firebase config is missing some values. Please check your .env file.");
-    // Create a dummy app object if not configured to avoid crashing the app
+    // We don't log an error here to avoid cluttering the console.
+    // The AuthProvider and LoginPage will handle notifying the user.
     app = {} as FirebaseApp;
   }
 } else {
