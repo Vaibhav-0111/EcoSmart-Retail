@@ -14,21 +14,10 @@ import {
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Bell, Cog, LogOut, Sparkles, Sprout } from "lucide-react";
+import { Bell, Cog, User, Sparkles, Sprout } from "lucide-react";
 import { ReturnsProvider } from "@/context/ReturnsContext";
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { useReturns } from "@/hooks/use-returns";
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 function HeaderStats() {
     const { items } = useReturns();
@@ -65,36 +54,10 @@ function HeaderStats() {
 }
 
 function UserNav() {
-  const { user, logOut } = useAuth();
-  
-  if (!user) return null;
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={user.photoURL!} alt={user.displayName!} />
-            <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.displayName}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logOut}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <User className="h-5 w-5" />
+    </Button>
   );
 }
 
@@ -120,22 +83,6 @@ function EcoImpactCard() {
 }
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
-
-  if (loading || !user) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Icons.logo className="size-12 animate-spin text-primary" />
-      </div>
-    );
-  }
     return (
          <SidebarProvider>
             <Sidebar>
