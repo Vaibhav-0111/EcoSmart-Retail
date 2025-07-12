@@ -1,3 +1,4 @@
+
 // src/app/login/page.tsx
 "use client";
 
@@ -45,8 +46,7 @@ export default function LoginPage() {
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Configuration Missing</AlertTitle>
               <AlertDescription>
-                Firebase credentials are not set up. Please add them to your
-                <code>.env</code> file at the root of the project to enable login.
+                Firebase credentials are not set up. This app is not configured for login.
               </AlertDescription>
             </Alert>
           )}
