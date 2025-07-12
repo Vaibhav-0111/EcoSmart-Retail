@@ -1,6 +1,7 @@
+// src/app/dashboard/logistics/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -23,16 +24,36 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 import { mockReturnedItems, sustainabilityMetrics, sustainabilityChartConfig } from "@/lib/mock-data";
-import { getRecommendationAction } from "@/app/actions";
+import { getRecommendationAction, identifyProductAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import type { ReturnedItem } from "@/lib/types";
 import type { RecommendReturnedItemActionOutput } from "@/ai/flows/recommend-returned-item-action";
-import { Loader2, Package, Recycle, Wrench, Repeat, DollarSign, Wand2 } from "lucide-react";
+import { Loader2, Package, Recycle, Wrench, Repeat, DollarSign, Wand2, PlusCircle, Camera, SparklesIcon } from "lucide-react";
 
 const recommendationIcons = {
   reuse: <Repeat className="h-8 w-8 text-blue-500" />,
@@ -42,12 +63,93 @@ const recommendationIcons = {
 };
 
 export default function LogisticsPage() {
+  const [returnedItems, setReturnedItems] = useState<ReturnedItem[]>(mockReturnedItems);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [recommendation, setRecommendation] = useState<RecommendReturnedItemActionOutput | null>(null);
   const { toast } = useToast();
 
-  const selectedItem = mockReturnedItems.find((item) => item.id === selectedItemId);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newItem, setNewItem] = useState<Omit<ReturnedItem, 'id'>>({ name: '', category: 'electronics', condition: 'new', returnReason: '' });
+  const [isScanning, setIsScanning] = useState(false);
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (isAddDialogOpen) {
+      const getCameraPermission = async () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+           setHasCameraPermission(false);
+           return;
+        }
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          setHasCameraPermission(true);
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        } catch (error) {
+          console.error("Error accessing camera:", error);
+          setHasCameraPermission(false);
+        }
+      };
+      getCameraPermission();
+    } else {
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject as MediaStream;
+            stream.getTracks().forEach(track => track.stop());
+            videoRef.current.srcObject = null;
+        }
+    }
+  }, [isAddDialogOpen]);
+
+  const handleIdentifyProduct = async () => {
+    if (!videoRef.current) return;
+    setIsScanning(true);
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    const context = canvas.getContext('2d');
+    if (context) {
+        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const dataUri = canvas.toDataURL('image/jpeg');
+
+        try {
+            const result = await identifyProductAction({ photoDataUri: dataUri });
+            setNewItem(prev => ({...prev, name: result.productName, category: result.category as any}));
+             toast({
+                title: "Product Identified!",
+                description: "The AI has pre-filled the item details for you.",
+            });
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Identification Failed",
+                description: "The AI could not identify the product from the image.",
+                variant: "destructive",
+            });
+        }
+    }
+    
+    setIsScanning(false);
+  }
+
+  const handleAddItem = () => {
+      const newId = `R-${Math.floor(Math.random() * 10000)}`;
+      const itemToAdd: ReturnedItem = { ...newItem, id: newId };
+      setReturnedItems(prev => [itemToAdd, ...prev]);
+      setIsAddDialogOpen(false);
+      setNewItem({ name: '', category: 'electronics', condition: 'new', returnReason: '' });
+      toast({
+          title: "Item Added",
+          description: `${itemToAdd.name} has been added to the returns list.`,
+      });
+  }
+
+
+  const selectedItem = returnedItems.find((item) => item.id === selectedItemId);
 
   const handleGetRecommendation = async () => {
     if (!selectedItem) {
@@ -87,10 +189,18 @@ export default function LogisticsPage() {
       <div className="lg:col-span-3 space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Returned Items</CardTitle>
-            <CardDescription>
-              Select an item to view details and get an AI-powered action recommendation.
-            </CardDescription>
+            <div className="flex items-center justify-between">
+                <div>
+                    <CardTitle>Returned Items</CardTitle>
+                    <CardDescription>
+                    Select an item to view details and get an AI-powered action recommendation.
+                    </CardDescription>
+                </div>
+                <Button onClick={() => setIsAddDialogOpen(true)}>
+                    <PlusCircle className="mr-2" />
+                    Add Item
+                </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <RadioGroup value={selectedItemId || ""} onValueChange={setSelectedItemId}>
@@ -104,7 +214,7 @@ export default function LogisticsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockReturnedItems.map((item) => (
+                  {returnedItems.map((item) => (
                     <TableRow key={item.id} className="cursor-pointer" onClick={() => setSelectedItemId(item.id)}>
                       <TableCell>
                         <RadioGroupItem value={item.id} id={item.id} />
@@ -196,6 +306,88 @@ export default function LogisticsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+                <DialogTitle>Add New Returned Item</DialogTitle>
+                <DialogDescription>
+                    Use the camera to scan the product or manually enter the details below.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+                <div className="space-y-4">
+                    <div className="relative aspect-video bg-muted rounded-md overflow-hidden flex items-center justify-center">
+                       <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                       {hasCameraPermission === false && (
+                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-background/80">
+                            <Camera className="h-10 w-10 text-destructive mb-2"/>
+                            <p className="font-semibold">Camera Access Denied</p>
+                            <p className="text-sm text-muted-foreground">Please enable camera permissions to use this feature.</p>
+                         </div>
+                       )}
+                       {hasCameraPermission === null && (
+                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                            <Loader2 className="h-8 w-8 animate-spin"/>
+                         </div>
+                       )}
+                    </div>
+                     <Button onClick={handleIdentifyProduct} disabled={!hasCameraPermission || isScanning} className="w-full">
+                        {isScanning ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                           <SparklesIcon className="mr-2 h-4 w-4" />
+                        )}
+                        Scan & Identify with AI
+                    </Button>
+                </div>
+                <div className="space-y-4">
+                     <div>
+                        <Label htmlFor="item-name">Product Name</Label>
+                        <Input id="item-name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
+                    </div>
+                     <div>
+                        <Label htmlFor="item-category">Category</Label>
+                        <Select value={newItem.category} onValueChange={value => setNewItem({...newItem, category: value as any})}>
+                            <SelectTrigger id="item-category">
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="electronics">Electronics</SelectItem>
+                                <SelectItem value="clothing">Clothing</SelectItem>
+                                <SelectItem value="home goods">Home Goods</SelectItem>
+                                <SelectItem value="toys">Toys</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div>
+                        <Label htmlFor="item-condition">Condition</Label>
+                         <Select value={newItem.condition} onValueChange={value => setNewItem({...newItem, condition: value as any})}>
+                            <SelectTrigger id="item-condition">
+                                <SelectValue placeholder="Select a condition" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="new">New</SelectItem>
+                                <SelectItem value="used">Used</SelectItem>
+                                <SelectItem value="damaged">Damaged</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div>
+                        <Label htmlFor="item-reason">Return Reason</Label>
+                        <Textarea id="item-reason" value={newItem.returnReason} onChange={e => setNewItem({...newItem, returnReason: e.target.value})} />
+                    </div>
+                </div>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="secondary">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleAddItem} disabled={!newItem.name}>Add Item</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
