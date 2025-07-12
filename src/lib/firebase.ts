@@ -12,7 +12,7 @@ const firebaseConfig = {
 };
 
 // Function to check if all config values are present
-const isFirebaseConfigured = () => {
+export const isFirebaseConfigured = () => {
     return Object.values(firebaseConfig).every(val => !!val);
 }
 
@@ -33,4 +33,4 @@ if (app) {
     googleProvider = new GoogleAuthProvider();
 }
 
-export { app, auth, googleProvider, isFirebaseConfigured };
+export { app, auth, googleProvider };
