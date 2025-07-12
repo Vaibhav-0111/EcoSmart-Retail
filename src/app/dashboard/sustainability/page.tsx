@@ -19,7 +19,6 @@ const md = new Remarkable();
 const IMPACT_MULTIPLIERS: Record<string, { co2: number; waste: number; water: number; trees: number }> = {
     resell: { co2: 5, waste: 2.5, water: 50, trees: 0.05 },
     repair: { co2: 3, waste: 2.0, water: 30, trees: 0.02 },
-    reuse: { co2: 2, waste: 2.5, water: 20, trees: 0.01 },
     recycle: { co2: 4, waste: 2.2, water: 40, trees: 0.04 },
     landfill: { co2: 0, waste: 0, water: 0, trees: 0 },
 }
@@ -52,7 +51,6 @@ export default function SustainabilityPage() {
     const chartData = [
         { action: "Resell", value: breakdown.resell || 0, fill: "var(--color-resell)" },
         { action: "Repair", value: breakdown.repair || 0, fill: "var(--color-repair)" },
-        { action: "Reuse", value: breakdown.reuse || 0, fill: "var(--color-reuse)" },
         { action: "Recycle", value: breakdown.recycle || 0, fill: "var(--color-recycle)" },
     ];
     

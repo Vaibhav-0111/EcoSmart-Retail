@@ -65,7 +65,6 @@ export const mockReturnedItems: ReturnedItem[] = [
 export const sustainabilityMetrics = [
   { action: "Resell", value: 45, fill: "var(--color-resell)" },
   { action: "Repair", value: 20, fill: "var(--color-repair)" },
-  { action: "Reuse", value: 15, fill: "var(--color-reuse)" },
   { action: "Recycle", value: 20, fill: "var(--color-recycle)" },
 ];
 
@@ -80,10 +79,6 @@ export const sustainabilityChartConfig = {
   repair: {
     label: "Repair",
     color: "hsl(var(--chart-2))",
-  },
-  reuse: {
-    label: "Reuse",
-    color: "hsl(var(--chart-4))",
   },
   recycle: {
     label: "Recycle",

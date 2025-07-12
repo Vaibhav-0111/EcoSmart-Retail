@@ -25,7 +25,6 @@ import { ArrowUpRight, Bot, Box, DollarSign, Leaf, Package, Recycle, Sparkles, B
 import type { ReturnedItem } from "@/lib/types";
 
 const recommendationIcons: { [key: string]: React.ReactNode } = {
-  reuse: <Repeat className="size-3 mr-1" />,
   repair: <Wrench className="size-3 mr-1" />,
   recycle: <Recycle className="size-3 mr-1" />,
   resell: <DollarSign className="size-3 mr-1" />,
@@ -35,7 +34,6 @@ const recommendationBadges: { [key: string]: string } = {
     resell: "text-amber-600 border-amber-200 bg-amber-50",
     recycle: "text-blue-600 border-blue-200 bg-blue-50",
     repair: "text-orange-600 border-orange-200 bg-orange-50",
-    reuse: "text-indigo-600 border-indigo-200 bg-indigo-50",
 };
 
 
