@@ -35,13 +35,13 @@ const links = [
     icon: <Sprout />,
   },
   {
-    href: "#",
+    href: "/dashboard/analytics",
     label: "Analytics",
     description: "Performance Insights",
     icon: <BarChart />,
   },
     {
-    href: "#",
+    href: "/dashboard/recommendations",
     label: "Recommendations",
     description: "AI-Powered Suggestions",
     icon: <Sparkles />,
@@ -75,7 +75,7 @@ export function DashboardNav() {
         <SidebarMenuItem key={`${link.href}-${link.label}`}>
           <SidebarMenuButton
             asChild
-            isActive={pathname.startsWith(link.href) && link.href !== "#"}
+            isActive={pathname.startsWith(link.href)}
             className="h-auto flex-col items-start p-3 data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
           >
             <Link href={link.href}>
