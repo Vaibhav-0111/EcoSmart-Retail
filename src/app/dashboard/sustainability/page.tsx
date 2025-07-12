@@ -16,7 +16,7 @@ import { Remarkable } from 'remarkable';
 const md = new Remarkable();
 
 // Define impact multipliers for a more realistic demo
-const IMPACT_MULTIPLIERS = {
+const IMPACT_MULTIPLIERS: Record<string, { co2: number; waste: number; water: number; trees: number }> = {
     resell: { co2: 5, waste: 2.5, water: 50, trees: 0.05 },
     repair: { co2: 3, waste: 2.0, water: 30, trees: 0.02 },
     reuse: { co2: 2, waste: 2.5, water: 20, trees: 0.01 },
@@ -39,7 +39,7 @@ export default function SustainabilityPage() {
 
     const breakdown = items.reduce((acc, item) => {
         const action = item.recommendation || 'landfill';
-        if (action !== 'landfill') {
+        if (action !== 'landfill' && IMPACT_MULTIPLIERS[action]) {
             acc[action] = (acc[action] || 0) + 1;
             co2Saved += IMPACT_MULTIPLIERS[action].co2;
             wasteDiverted += IMPACT_MULTIPLIERS[action].waste;
