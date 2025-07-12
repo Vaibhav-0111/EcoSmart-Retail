@@ -27,6 +27,7 @@ const searchInternetForProductPrice = ai.defineTool(
         // A real implementation would use a search API or web scraper.
         // For this demo, we'll simulate it with a plausible random price.
         console.log(`Simulating internet search for: ${input.productName}`);
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network latency
         const price = Math.floor(Math.random() * (400 - 20 + 1)) + 20;
         return { found: true, estimatedPrice: price };
     }
@@ -67,6 +68,7 @@ const prompt = ai.definePrompt({
   name: 'diagnoseReturnedItemPrompt',
   input: {schema: DiagnoseReturnedItemInputSchema},
   output: {schema: DiagnoseReturnedItemOutputSchema},
+  // The tool is defined here so the LLM knows about it, but we will call it manually for performance.
   tools: [searchInternetForProductPrice],
   prompt: `You are an AI assistant helping a retail employee diagnose a returned item.
   Your goal is to gather the following information by asking questions:
@@ -75,8 +77,7 @@ const prompt = ai.definePrompt({
   3. Condition (must be one of: new, used, damaged)
   4. Return Reason
 
-  When the user provides the product name, you MUST use the 'searchInternetForProductPrice' tool to find its estimated value.
-  After using the tool, confirm the estimated value with the user and then ask for the remaining information (Category, Condition, Reason).
+  You may be provided with tool output that contains the product's estimated price. When you see this, confirm the estimated value with the user and then ask for the remaining information (Category, Condition, Reason).
 
   Keep your questions friendly, concise, and focused on gathering one piece of information at a time.
   Start the conversation by asking for the product name if the history is empty.
@@ -87,14 +88,15 @@ const prompt = ai.definePrompt({
 
   Here is the conversation history:
   {{#each chatHistory}}
-  {{#if (lookup . 'tool')}}
-    Tool: {{content}}
+    {{#if (lookup . 'tool')}}
+        Tool: {{content}}
     {{else}}
-    {{role}}: {{content}}
+        {{role}}: {{content}}
     {{/if}}
   {{/each}}
   `,
 });
+
 
 const diagnoseReturnedItemFlow = ai.defineFlow(
   {
@@ -111,6 +113,33 @@ const diagnoseReturnedItemFlow = ai.defineFlow(
       };
     }
 
+    const lastMessage = input.chatHistory[input.chatHistory.length - 1];
+    
+    // Optimization: If the user just provided the product name, call the tool directly.
+    // This is faster than letting the LLM decide to call the tool.
+    // We check if the last message was from the user and the one before was the AI asking for the product name.
+    if (
+      lastMessage.role === 'user' &&
+      input.chatHistory.length > 0 &&
+      input.chatHistory[input.chatHistory.length - 2]?.content.includes('name of the product')
+    ) {
+      const productName = lastMessage.content;
+      console.log(`User provided product name: ${productName}. Searching for price...`);
+      
+      const priceResult = await searchInternetForProductPrice({ productName });
+      
+      const toolMessage: ChatMessage = {
+          role: 'tool',
+          content: `Searched for "${productName}" and found estimated price: $${priceResult.estimatedPrice}`
+      };
+      
+      // Add the tool result to the history and call the LLM to get the next conversational step.
+      const updatedHistory = [...input.chatHistory, toolMessage];
+      const { output } = await prompt({ chatHistory: updatedHistory });
+      return output!;
+    }
+
+    // Default case: let the LLM handle the conversation.
     const {output} = await prompt(input);
     return output!;
   }
