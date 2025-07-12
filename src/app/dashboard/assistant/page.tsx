@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -23,6 +24,15 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string | string[];
 }
+
+// Extend the Window interface to include webkitSpeechRecognition
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
+
 
 export default function AssistantPage() {
   const { toast } = useToast();
