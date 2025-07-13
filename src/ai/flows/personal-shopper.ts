@@ -55,14 +55,14 @@ const getReturnabilityScoreForProducts = ai.defineTool(
         const scores = input.productIds.map(id => {
             const product = mockProductCatalog.find(p => p.id === id);
             const returnCount = mockReturnedItems.filter(r => r.name === product?.name).length;
+            
             let returnRisk: 'Low' | 'Medium' | 'High' = 'Low';
-            if (returnCount > 0) {
+            if (returnCount > 1) {
+                returnRisk = 'High';
+            } else if (returnCount > 0) {
                 returnRisk = 'Medium';
             }
-            // Manually set a high-risk item for demonstration
-            if (product?.name === 'Winter Jacket - Medium') {
-                returnRisk = 'High';
-            }
+
             return { productId: id, returnRisk };
         });
         return { scores };

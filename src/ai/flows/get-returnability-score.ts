@@ -41,16 +41,20 @@ const prompt = ai.definePrompt({
 
   The score should be one of: 'Low', 'Medium', or 'High'.
 
+  A 'High' risk should be assigned to any product that appears MORE THAN ONCE in the return history.
+  A 'Medium' risk should be assigned to any product that appears EXACTLY ONCE in the return history.
+  A 'Low' risk should be assigned to any product with no return history.
+
   Analyze the following data:
   Product Catalog: {{{productCatalog}}}
   Return History: {{{returnHistory}}}
 
   Look for patterns like:
-  - A specific product having a high number of returns compared to others.
+  - A specific product having a high number of returns compared to others. This is the primary signal for a 'High' risk score.
   - Products frequently returned with 'damaged' condition.
   - Products with many returns for reasons like 'wrong size' or 'doesn't match description'.
   
-  Provide a 'reasoning' for each score. For products with no return history or very few returns, assign a 'Low' risk.
+  Provide a 'reasoning' for each score that reflects the number of times it was returned.
   `,
 });
 
