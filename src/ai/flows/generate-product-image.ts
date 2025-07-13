@@ -35,8 +35,8 @@ const generateProductImageFlow = ai.defineFlow(
   },
   async (input) => {
     const { media } = await ai.generate({
-      // IMPORTANT: This specific model is for image generation.
-      model: googleAI.model('gemini-2.0-flash-preview-image-generation'),
+      // Switched to a more stable image generation model to avoid 500 errors.
+      model: googleAI.model('imagen-2'),
       prompt: `A professional, high-resolution product photograph of the following item, on a clean, white studio background: ${input.prompt}`,
       config: {
         // You must request both modalities.
