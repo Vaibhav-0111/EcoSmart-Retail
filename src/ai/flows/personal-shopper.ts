@@ -9,7 +9,8 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
+import { mockReturnedItems } from '@/lib/mock-data';
 
 // --- MOCK PRODUCT DATABASE ---
 const mockProductCatalog = [
@@ -20,6 +21,8 @@ const mockProductCatalog = [
   { id: 'prod-005', name: 'Organic Cotton Throw Blanket', category: 'home goods', price: 79.99, description: 'A soft and cozy throw blanket made from 100% organic cotton, perfect for the living room.', keywords: ['cozy', 'home', 'gift'] },
   { id: 'prod-006', name: 'Smart Fitness Tracker', category: 'electronics', price: 149.00, description: 'Track your steps, heart rate, and workouts with this sleek and modern fitness tracker.', keywords: ['fitness', 'health', 'tech', 'gadget'] },
   { id: 'prod-007', name: 'Italian Espresso Machine', category: 'home goods', price: 499.00, description: 'Become a home barista with this semi-automatic Italian espresso machine.', keywords: ['coffee', 'kitchen', 'luxury', 'gift'] },
+  { id: 'R-1001', name: 'Smart LED TV 55-inch', category: 'electronics', price: 450, description: 'A returned Smart TV, tested and working.', keywords: ['electronics', 'tv', 'resale'] },
+  { id: 'R-1002', name: 'Winter Jacket - Medium', category: 'clothing', price: 85, description: 'A returned jacket, new condition.', keywords: ['clothing', 'jacket', 'resale'] },
 ];
 
 const ProductSchema = z.object({
@@ -28,7 +31,44 @@ const ProductSchema = z.object({
     price: z.number(),
     description: z.string(),
     imageUrl: z.string().url().describe("A placeholder image URL for the product."),
+    returnRisk: z.enum(['Low', 'Medium', 'High']).optional().describe("The assessed risk of this product being returned."),
 });
+
+// A simplified version of the full returnability score flow, designed as a fast tool.
+const getReturnabilityScoreForProducts = ai.defineTool(
+    {
+        name: 'getReturnabilityScoreForProducts',
+        description: 'Analyzes products against return history to determine their return risk.',
+        inputSchema: z.object({
+            productIds: z.array(z.string()).describe("An array of product IDs to be scored."),
+        }),
+        outputSchema: z.object({
+            scores: z.array(z.object({
+                productId: z.string(),
+                returnRisk: z.enum(['Low', 'Medium', 'High']),
+            })),
+        }),
+    },
+    async (input) => {
+        // In a real app, this would be a more sophisticated calculation.
+        // Here, we simulate it based on our mock data.
+        const scores = input.productIds.map(id => {
+            const product = mockProductCatalog.find(p => p.id === id);
+            const returnCount = mockReturnedItems.filter(r => r.name === product?.name).length;
+            let returnRisk: 'Low' | 'Medium' | 'High' = 'Low';
+            if (returnCount > 0) {
+                returnRisk = 'Medium';
+            }
+            // Manually set a high-risk item for demonstration
+            if (product?.name === 'Winter Jacket - Medium') {
+                returnRisk = 'High';
+            }
+            return { productId: id, returnRisk };
+        });
+        return { scores };
+    }
+);
+
 
 const searchProductCatalog = ai.defineTool(
     {
@@ -57,10 +97,20 @@ const searchProductCatalog = ai.defineTool(
 
             return matchesCategory && matchesMaxPrice && matchesMinPrice && matchesKeywords;
         });
+        
+        // Add returnability scores
+        const riskScores = await getReturnabilityScoreForProducts({ productIds: filteredProducts.map(p => p.id) });
 
-        const productsWithImages = filteredProducts.map(p => ({...p, imageUrl: `https://placehold.co/600x400.png`}));
+        const productsWithDetails = filteredProducts.map(p => {
+            const risk = riskScores.scores.find(s => s.productId === p.id)?.returnRisk || 'Low';
+            return {
+                ...p, 
+                imageUrl: `https://placehold.co/600x400.png`,
+                returnRisk: risk
+            };
+        });
 
-        return { products: productsWithImages };
+        return { products: productsWithDetails };
     }
 );
 
@@ -96,6 +146,7 @@ const prompt = ai.definePrompt({
 - Ask clarifying questions to understand their needs, preferences, style, and budget. Be proactive. If they say "a gift for my dad", ask what he likes.
 - Once you have enough information, use the 'searchProductCatalog' tool to find suitable products. You can call the tool multiple times if needed.
 - When you find good products, present them to the user in your 'response' message. Mention the products by name and give a brief, engaging summary of why you think they're a good fit.
+- If a product has a 'Medium' or 'High' return risk, briefly and helpfully mention it to the user. For example, "Just a heads-up, some customers have returned this for size issues, so you may want to double-check the size guide."
 - Set the 'recommendedProducts' field in your output with the full details of the products you are showing the user.
 - If the tool returns no products, inform the user and try to refine the search by asking more questions.
 - Maintain a friendly, conversational, and helpful tone throughout.

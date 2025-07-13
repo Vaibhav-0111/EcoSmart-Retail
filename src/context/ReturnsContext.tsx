@@ -3,10 +3,20 @@
 
 import React, { createContext, useState, ReactNode } from 'react';
 import type { ReturnedItem } from '@/lib/types';
-import { mockReturnedItems } from '@/lib/mock-data';
+import { mockReturnedItems, mockProductCatalog } from '@/lib/mock-data';
+
+interface Product {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    description: string;
+    keywords: string[];
+}
 
 interface ReturnsContextType {
     items: ReturnedItem[];
+    catalog: Product[];
     addItem: (item: Omit<ReturnedItem, 'id'>) => void;
     updateItem: (id: string, updates: Partial<Omit<ReturnedItem, 'id'>>) => void;
 }
@@ -15,6 +25,7 @@ export const ReturnsContext = createContext<ReturnsContextType | undefined>(unde
 
 export const ReturnsProvider = ({ children }: { children: ReactNode }) => {
     const [items, setItems] = useState<ReturnedItem[]>(mockReturnedItems);
+    const [catalog] = useState<Product[]>(mockProductCatalog);
 
     const addItem = (item: Omit<ReturnedItem, 'id'>) => {
         const newId = `R-${Math.floor(Math.random() * 10000)}`;
@@ -31,7 +42,7 @@ export const ReturnsProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <ReturnsContext.Provider value={{ items, addItem, updateItem }}>
+        <ReturnsContext.Provider value={{ items, catalog, addItem, updateItem }}>
             {children}
         </ReturnsContext.Provider>
     );

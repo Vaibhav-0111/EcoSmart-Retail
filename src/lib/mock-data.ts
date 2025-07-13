@@ -2,6 +2,16 @@ import { ComponentType } from "react";
 import { ReturnedItem } from "./types";
 import { Leaf, Recycle, Droplets, Trees, Timer, TrendingUp, CircleDollarSign, CheckSquare } from "lucide-react";
 
+export const mockProductCatalog = [
+  { id: 'prod-001', name: 'Premium Leather Backpack', category: 'accessories', price: 189.99, description: 'A stylish and durable backpack for work and travel, made from genuine leather with multiple compartments.', keywords: ['work', 'travel', 'professional', 'bag'] },
+  { id: 'prod-002', name: 'Gourmet Chef\'s Knife', category: 'home goods', price: 129.50, description: 'A high-carbon stainless steel chef\'s knife, perfect for the home cook or professional chef.', keywords: ['cooking', 'kitchen', 'gift', 'dad'] },
+  { id: 'prod-003', name: 'Waterproof Hiking Jacket', category: 'clothing', price: 249.00, description: 'A lightweight, breathable, and fully waterproof jacket designed for serious hikers.', keywords: ['outdoors', 'hiking', 'warm', 'jacket'] },
+  { id: 'prod-004', name: 'Noise-Cancelling Headphones', category: 'electronics', price: 349.99, description: 'Immerse yourself in sound with these top-of-the-line noise-cancelling headphones.', keywords: ['tech', 'music', 'gift', 'travel'] },
+  { id: 'prod-005', name: 'Organic Cotton Throw Blanket', category: 'home goods', price: 79.99, description: 'A soft and cozy throw blanket made from 100% organic cotton, perfect for the living room.', keywords: ['cozy', 'home', 'gift'] },
+  { id: 'prod-006', name: 'Smart Fitness Tracker', category: 'electronics', price: 149.00, description: 'Track your steps, heart rate, and workouts with this sleek and modern fitness tracker.', keywords: ['fitness', 'health', 'tech', 'gadget'] },
+  { id: 'prod-007', name: 'Italian Espresso Machine', category: 'home goods', price: 499.00, description: 'Become a home barista with this semi-automatic Italian espresso machine.', keywords: ['coffee', 'kitchen', 'luxury', 'gift'] },
+];
+
 export const mockReturnedItems: ReturnedItem[] = [
   {
     id: "R-1001",
@@ -58,6 +68,14 @@ export const mockReturnedItems: ReturnedItem[] = [
     condition: "used",
     returnReason: "Doesn't fit as expected.",
     value: 60,
+  },
+  {
+    id: "R-1007",
+    name: "Winter Jacket - Medium",
+    category: "clothing",
+    condition: "used",
+    returnReason: "Customer said it felt 'itchy'.",
+    value: 85,
   },
 ];
 

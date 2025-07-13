@@ -12,6 +12,7 @@ import { textToSpeech, type TextToSpeechInput, type TextToSpeechOutput } from '@
 import { generateResaleListing, type GenerateResaleListingInput, type GenerateResaleListingOutput } from '@/ai/flows/generate-resale-listing';
 import { personalShopper } from '@/ai/flows/personal-shopper';
 import type { PersonalShopperInput, PersonalShopperOutput } from '@/ai/flows/personal-shopper';
+import { getReturnabilityScore, type GetReturnabilityScoreInput, type GetReturnabilityScoreOutput } from '@/ai/flows/get-returnability-score';
 
 
 export async function getRecommendationAction(input: RecommendReturnedItemActionInput): Promise<RecommendReturnedItemActionOutput> {
@@ -56,4 +57,8 @@ export async function generateResaleListingAction(input: GenerateResaleListingIn
 
 export async function personalShopperAction(input: PersonalShopperInput): Promise<PersonalShopperOutput> {
     return await personalShopper(input);
+}
+
+export async function getReturnabilityScoreAction(input: GetReturnabilityScoreInput): Promise<GetReturnabilityScoreOutput> {
+    return await getReturnabilityScore(input);
 }

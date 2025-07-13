@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { personalShopperAction } from "@/app/actions";
-import { Loader2, Send, Bot, User, Sparkles, Mic, MicOff } from "lucide-react";
+import { Loader2, Send, Bot, User, Sparkles, Mic, MicOff, AlertTriangle, ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 
 // SpeechRecognition type might not be available on the window object, so we declare it.
 declare global {
@@ -25,12 +28,25 @@ interface Product {
     price: number;
     description: string;
     imageUrl: string;
+    returnRisk?: "Low" | "Medium" | "High";
 }
 
 interface ChatMessage {
     role: "user" | "model" | "tool";
     content: string;
     recommendedProducts?: Product[];
+}
+
+const riskStyles = {
+    Low: "border-green-300 bg-green-50 text-green-700",
+    Medium: "border-yellow-300 bg-yellow-50 text-yellow-700",
+    High: "border-red-300 bg-red-50 text-red-700",
+}
+
+const riskIcons = {
+    Low: <ShieldCheck className="size-3" />,
+    Medium: <AlertTriangle className="size-3" />,
+    High: <AlertTriangle className="size-3" />,
 }
 
 export function PersonalShopperChat() {
@@ -177,7 +193,12 @@ export function PersonalShopperChat() {
                                             </CardContent>
                                             <CardFooter className="p-4 flex justify-between items-center">
                                                 <p className="font-bold text-lg">${product.price.toFixed(2)}</p>
-                                                <Button size="sm">View</Button>
+                                                {product.returnRisk && (
+                                                    <Badge variant="outline" className={cn("gap-1.5", riskStyles[product.returnRisk])}>
+                                                        {riskIcons[product.returnRisk]}
+                                                        {product.returnRisk} Return Risk
+                                                    </Badge>
+                                                )}
                                             </CardFooter>
                                         </Card>
                                     ))}
