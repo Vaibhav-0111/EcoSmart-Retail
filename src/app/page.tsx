@@ -24,13 +24,13 @@ export default function Home() {
         </div>
       </header>
       <main className="flex-1">
-        <section className="flex-1 flex items-center justify-center">
+        <section className="flex-1 flex items-center justify-center py-16 md:py-24">
           <div className="container flex max-w-[64rem] flex-col items-center gap-4 text-center">
             <h1 className="font-headline text-3xl font-bold sm:text-5xl md:text-6xl lg:text-7xl">
               EcoSmart Retail
             </h1>
             <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-              An AI-powered platform for sustainable reverse logistics and personalized shopping.
+              A platform for sustainable reverse logistics and personalized shopping.
             </p>
             <div className="space-x-4">
               <Button asChild size="lg" variant="outline">
@@ -71,7 +71,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                Our AI assistant learns from user behavior to provide tailored product recommendations, reducing decision fatigue and enhancing the shopping experience.
+                Our smart assistant learns from user behavior to provide tailored product recommendations, reducing decision fatigue and enhancing the shopping experience.
               </CardContent>
             </Card>
           </div>
@@ -79,10 +79,10 @@ export default function Home() {
         <section className="container space-y-6 py-8 md:py-12 lg:py-24">
           <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
             <h2 className="font-headline text-2xl font-bold leading-[1.1] sm:text-3xl md:text-4xl">
-              Powered by GenAI
+              Our Technology
             </h2>
-            <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-              We leverage cutting-edge generative AI to provide intelligent recommendations for both logistics and customer-facing shopping experiences.
+             <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+              EcoSmart Retail is built on a modern, scalable tech stack to deliver a seamless and intelligent experience.
             </p>
           </div>
           <div className="mx-auto flex justify-center md:max-w-[64rem]">
@@ -90,14 +90,13 @@ export default function Home() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Cpu className="h-6 w-6 text-primary" />
-                    Our Technology
+                    Tech Stack
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                   <p>EcoSmart Retail is built on a modern, scalable tech stack to deliver a seamless and intelligent experience.</p>
                    <ul className="list-disc list-inside text-muted-foreground">
                       <li>Next.js and React for a dynamic frontend.</li>
-                      <li>Genkit with Google AI for powerful AI features.</li>
+                      <li>Advanced AI models for intelligent features.</li>
                       <li>Tailwind CSS and shadcn/ui for a beautiful, responsive design.</li>
                    </ul>
                 </CardContent>
@@ -109,6 +108,9 @@ export default function Home() {
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
             Built for the Retail Hackathon 2025.
+          </p>
+          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left animate-fade-in-up">
+            Made with ❤️ by <span className="font-bold text-primary">Vaibhav and team</span>
           </p>
         </div>
       </footer>
