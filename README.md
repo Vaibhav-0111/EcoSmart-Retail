@@ -5,7 +5,7 @@ Welcome to EcoSmart Retail, an AI-powered platform designed to revolutionize ret
 ## Core Technologies
 
 *   **Frontend:** Next.js, React, TypeScript
-*   **AI/Backend:** Google AI via Genkit
+*   **AI/Backend:** Google API Firebase Console
 *   **UI:** ShadCN UI Components, Tailwind CSS, Lucide Icons
 
 ---
