@@ -110,6 +110,9 @@ export default function Home() {
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
             Built for the Retail Hackathon 2025.
           </p>
+          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left animate-fade-in-up">
+            Made with ❤️ by <span className="font-bold text-primary">Vaibhav Team</span>
+          </p>
         </div>
       </footer>
     </div>
