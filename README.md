@@ -14,7 +14,9 @@
 
 ## 🚀 Live Demo
 
-🔗 Coming Soon (or replace with link if available)
+🔗 Coming Soon 
+<img width="1890" height="1036" alt="Screenshot 2025-07-18 224616" src="https://github.com/user-attachments/assets/09d46fbb-295d-4299-99f6-7cd087c8467b" />
+
 
 ---
 
