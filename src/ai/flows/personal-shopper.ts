@@ -34,7 +34,6 @@ const ProductSchema = z.object({
     returnRisk: z.enum(['Low', 'Medium', 'High']).optional().describe("The assessed risk of this product being returned."),
 });
 
-// A simplified version of the full returnability score flow, designed as a fast tool.
 const getReturnabilityScoreForProducts = ai.defineTool(
     {
         name: 'getReturnabilityScoreForProducts',
@@ -50,16 +49,14 @@ const getReturnabilityScoreForProducts = ai.defineTool(
         }),
     },
     async (input) => {
-        // In a real app, this would be a more sophisticated calculation.
-        // Here, we simulate it based on our mock data.
         const scores = input.productIds.map(id => {
             const product = mockProductCatalog.find(p => p.id === id);
             const returnCount = mockReturnedItems.filter(r => r.name === product?.name).length;
             
             let returnRisk: 'Low' | 'Medium' | 'High' = 'Low';
-            if (returnCount > 1) {
+            if (returnCount > 1) { // More than once is high risk
                 returnRisk = 'High';
-            } else if (returnCount > 0) {
+            } else if (returnCount === 1) { // Exactly once is medium risk
                 returnRisk = 'Medium';
             }
 
